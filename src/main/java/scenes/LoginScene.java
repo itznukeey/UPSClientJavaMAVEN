@@ -1,3 +1,5 @@
+package scenes;
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -24,5 +26,6 @@ public class LoginScene {
         root.getChildren().add(loginButton);
 
         this.scene = new Scene(root);
+        StyleSheetLoader.loadStyleSheet(this.scene);
     }
 }
