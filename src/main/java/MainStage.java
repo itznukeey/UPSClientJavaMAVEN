@@ -10,6 +10,5 @@ public class MainStage {
     }
 
     public void run() {
-
     }
 }
