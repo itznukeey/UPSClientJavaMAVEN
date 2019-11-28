@@ -52,9 +52,10 @@ public class Client {
         input = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
         output = new PrintWriter(serverSocket.getOutputStream(), true);
         LOGGER.info("Successfully connected to the server.");
+    }
 
-
-
+    public boolean validate() {
+        return true;
     }
 
 
