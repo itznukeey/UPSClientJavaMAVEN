@@ -9,8 +9,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
-<GridPane alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.LoginController">
    <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
    </columnConstraints>
@@ -18,28 +17,29 @@
       <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
    </rowConstraints>
    <children>
-      <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" prefHeight="400.0" prefWidth="600.0">
+      <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" prefHeight="418.0" prefWidth="739.0">
          <children>
             <Text layoutX="132.0" layoutY="140.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Blackjack online" textAlignment="CENTER" wrappingWidth="335.02587890625">
                <font>
                   <Font name="Dubai Bold" size="37.0" />
                </font>
             </Text>
-            <JFXTextField alignment="CENTER" layoutX="217.0" layoutY="207.0" promptText="IP address" text="127.0.0.1:443">
+            <JFXTextField fx:id="ipTextField" alignment="CENTER" layoutX="217.0" layoutY="207.0" promptText="IP address" text="127.0.0.1:443">
                <font>
                   <Font name="Open Sans Regular" size="15.0" />
                </font>
             </JFXTextField>
-            <JFXTextField alignment="CENTER" layoutX="217.0" layoutY="167.0" promptText="Enter your username">
+            <JFXTextField fx:id="usernameTextField" alignment="CENTER" layoutX="217.0" layoutY="167.0" promptText="Enter your username">
                <font>
                   <Font name="Open Sans Regular" size="15.0" />
                </font>
             </JFXTextField>
-            <JFXButton layoutX="274.0" layoutY="264.0" ripplerFill="WHITE" stylesheets="@../stylesheets/JFXStylesheet.css" text="Login">
+            <JFXButton fx:id="loginButton" layoutX="274.0" layoutY="264.0" ripplerFill="WHITE" style="-fx-background-color: cyan;" text="Login">
                <font>
                   <Font name="Open Sans Light" size="14.0" />
                </font>
             </JFXButton>
+            <Text fx:id="errorText" fill="RED" layoutX="290.0" layoutY="165.0" strokeType="OUTSIDE" strokeWidth="0.0" />
          </children>
       </Pane>
    </children>

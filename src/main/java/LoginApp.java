@@ -1,6 +1,7 @@
+import controllers.LoginController;
+import java.io.IOException;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import scenes.LoginController;
 
 public class LoginApp extends Application {
 
@@ -12,17 +13,19 @@ public class LoginApp extends Application {
     @Override
     public void start(Stage loginStage) {
 
-        var loginController = LoginController.getLoginScene();
+        LoginController loginController = null;
 
-        loginStage.setTitle("Blackjack client");
+        try {
+            loginController = new LoginController();
+        }
+        catch (IOException ex) {
+            System.err.println("Could not get login page, please try again later");
+            System.exit(-1);
+        }
+
         loginStage.setScene(loginController.getScene());
 
-        var loginButton = loginController.getLoginButton();
-        var loginTextField = loginController.getLoginTextField();
-        var serverInfo = loginController.getServerInfo();
-
         loginStage.show();
-
 
     }
 }
