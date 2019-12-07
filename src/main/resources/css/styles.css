@@ -1,0 +1,13 @@
+
+
+.button {
+
+    -fx-background-color: rgb(255, 82, 58);
+    -fx-text-fill: rgb(227, 227, 227);
+}
+
+.text-field {
+    -fx-background-color: rgb(23, 25, 24);
+    -fx-text-fill: #f4fff5;
+    -fx-prompt-text-fill: #8d908f;
+}
