@@ -3,11 +3,13 @@ package client;
 import lombok.Getter;
 import lombok.Setter;
 
-public class ClientInfo {
+public class ClientData {
 
     @Getter
     @Setter
     private String username;
 
-
+    @Getter
+    @Setter
+    private LobbyList lobbyList;
 }

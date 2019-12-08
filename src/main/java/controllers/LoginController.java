@@ -1,6 +1,7 @@
 package controllers;
 
 import client.Client;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import javafx.fxml.FXML;
@@ -68,6 +69,11 @@ public class LoginController {
 
         } catch (Exception ex) {
             errorText.setText("Server is unreachable, please try again later.");
+            try {
+                client.closeConnection();
+            } catch (IOException ioex) {
+                errorText.setText("Could not close connection");
+            }
         }
     }
 }

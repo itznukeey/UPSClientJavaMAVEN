@@ -1,18 +1,22 @@
 package client;
 
-import client.communication.MessageBuilder;
-import client.communication.MessageParser;
+import client.communication.MessageSender;
+import client.communication.MessageReceiver;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.time.Duration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import lombok.Getter;
 
 public class Client {
 
     private static final Logger LOGGER = Logger.getLogger(Client.class.getName());
+
+    private static final Duration DURATION_BEFORE_TIMEOUT = Duration.ofSeconds(5);
 
     static {
         LOGGER.setLevel(Level.ALL);
@@ -33,49 +37,46 @@ public class Client {
      */
     private Socket serverSocket;
 
-    /**
-     * Input stream ze serveru
-     */
-    private BufferedReader input;
+    @Getter
+    private ClientData data;
 
-    /**
-     * Output stream do serveru
-     */
-    private PrintWriter output;
+    private MessageSender messageSender;
 
-    private ClientInfo clientInfo;
-
-    private MessageBuilder messageBuilder;
-
-    private MessageParser messageParser;
+    private MessageReceiver messageReceiver;
 
 
     public Client(String ip, int port) {
         this.serverIp = ip;
         this.serverPort = port;
-        this.clientInfo = new ClientInfo();
-        this.messageBuilder = new MessageBuilder();
+        this.data = new ClientData();
     }
 
     public void connect() throws IOException {
         serverSocket = new Socket(serverIp, serverPort);
-        input = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
-        output = new PrintWriter(serverSocket.getOutputStream(), true);
+     //   serverSocket.setSoTimeout((int) DURATION_BEFORE_TIMEOUT.toMillis());
         LOGGER.info("Successfully connected to the server.");
-        this.messageParser = new MessageParser(input);
+        this.messageReceiver = new MessageReceiver(new BufferedReader(new InputStreamReader(serverSocket.getInputStream())));
+        this.messageSender = new MessageSender(new PrintWriter(serverSocket.getOutputStream(), true));
     }
 
     public boolean validate(String username) throws IOException {
         LOGGER.info("Attempting to join to server using username: " + username);
-        output.write(messageBuilder.loginRequest(username));
+        messageSender.sendLoginRequest(username);
 
-        if (messageParser.getLoginResponse()) {
-            clientInfo.setUsername(username);
-
+        if (messageReceiver.getLoginResponse()) {
+            data.setUsername(username);
             return true;
         }
 
         return false;
+    }
+
+    public void getLobbyList() throws IOException {
+        data.setLobbyList(messageReceiver.getLobbyListResponse());
+    }
+
+    public void closeConnection() throws IOException {
+        serverSocket.close();
     }
 
 

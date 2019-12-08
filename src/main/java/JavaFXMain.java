@@ -1,3 +1,4 @@
+import controllers.LoginController;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -16,8 +17,13 @@ public class JavaFXMain extends Application {
     public void start(Stage loginStage) {
 
         try {
-            Parent loginRoot = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
+            var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            Parent loginRoot = fxmlLoader.load();
+            var loginController = fxmlLoader.<LoginController>getController();
             loginStage.setScene(new Scene(loginRoot));
+
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }

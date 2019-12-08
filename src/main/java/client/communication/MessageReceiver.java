@@ -8,22 +8,19 @@ import java.time.Duration;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
-import serialization.Deserializer;
+import serialization.TCPData;
 
-public class MessageParser {
+public class MessageReceiver {
 
     private static final Duration LOGIN_TIMEOUT = Duration.ofMillis(500);
 
     private static final Integer MAX_RESPONSE_LENGTH = 2048;
 
-    private final Deserializer deserializer;
-
     @Getter
     @Setter
     private BufferedReader input;
 
-    public MessageParser(BufferedReader input) {
-        this.deserializer = new Deserializer();
+    public MessageReceiver(BufferedReader input) {
         this.input = input;
     }
 
@@ -48,17 +45,15 @@ public class MessageParser {
     }
 
     public boolean getLoginResponse() throws IOException {
-        var message = getResponse();
-        deserializer.deserialize(message);
-        return deserializer.valueOf("response").equals("ok");
+        var data = new TCPData(getResponse());
+        return data.valueOf("response").equals("true");
     }
 
     public LobbyList getLobbyListResponse() throws IOException, NumberFormatException {
-        var message = getResponse();
-        deserializer.deserialize(message);
+        var data = new TCPData(getResponse());
         var lobbyList = new LobbyList();
 
-        deserializer.getFields().forEach((id, values) -> {
+        data.getFields().forEach((id, values) -> {
             String[] fields = values.split(";");
 
             lobbyList.addLobby(
