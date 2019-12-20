@@ -13,12 +13,12 @@
             <Font name="Hack Regular" size="60.0" />
          </font>
       </Text>
-      <TextField fx:id="loginField" alignment="CENTER" layoutX="564.0" layoutY="304.0" prefHeight="1.0" prefWidth="153.0" promptText="Username" stylesheets="@../css/styles.css" AnchorPane.bottomAnchor="342.0" AnchorPane.leftAnchor="563.0" AnchorPane.rightAnchor="564.0" AnchorPane.topAnchor="347.0">
+      <TextField fx:id="loginField" alignment="CENTER" layoutX="564.0" layoutY="304.0" prefHeight="1.0" prefWidth="153.0" promptText="Username" stylesheets="@../css/styles.css">
          <font>
             <Font name="Open Sans Regular" size="15.0" />
          </font>
       </TextField>
-      <TextField fx:id="addressField" alignment="CENTER" layoutX="563.0" layoutY="347.0" prefHeight="1.0" prefWidth="153.0" promptText="Server address" stylesheets="@../css/styles.css" text="127.0.0.1:443" AnchorPane.bottomAnchor="342.0" AnchorPane.leftAnchor="563.0" AnchorPane.rightAnchor="564.0" AnchorPane.topAnchor="347.0">
+      <TextField fx:id="addressField" alignment="CENTER" layoutX="563.0" layoutY="347.0" prefHeight="1.0" prefWidth="153.0" promptText="Server address" stylesheets="@../css/styles.css" text="127.0.0.1:443">
          <font>
             <Font name="Open Sans Regular" size="15.0" />
          </font>
