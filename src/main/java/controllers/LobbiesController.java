@@ -2,15 +2,18 @@ package controllers;
 
 import client.Client;
 import client.Lobby;
-import client.LobbyList;
+import controllers.concurrency.LobbyListUpdater;
+import java.util.List;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
+import lombok.Getter;
 import lombok.Setter;
 
 public class LobbiesController {
 
+    @Getter
     @Setter
     private Client client;
 
@@ -23,12 +26,19 @@ public class LobbiesController {
     @Setter
     private Stage stage;
 
+    private LobbyListUpdater lobbyListUpdater;
+
     protected void initialize() {
     }
 
-    private void mapLobbies(LobbyList lobbyList) {
+    public synchronized void updateListView(List<Lobby> lobbies) {
         listView.getItems().clear();
-        listView.getItems().addAll(lobbyList.getLobbies());
+        listView.getItems().addAll(lobbies);
+    }
+
+    public void start() {
+        lobbyListUpdater = new LobbyListUpdater(this, client);
+        new Thread(lobbyListUpdater).start();
     }
 
     @FXML

@@ -87,6 +87,7 @@ public class LoginController {
         Parent lobbiesRoot = fxmlLoader.getRoot();
         var lobbiesController = fxmlLoader.<LobbiesController>getController();
         lobbiesController.setClient(client);
+        lobbiesController.setStage(stage);
         stage.setScene(new Scene(lobbiesRoot));
     }
 }

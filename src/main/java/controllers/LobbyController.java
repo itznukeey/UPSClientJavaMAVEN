@@ -1,15 +1,18 @@
 package controllers;
 
+import client.Client;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javax.swing.text.html.ListView;
+import javafx.stage.Stage;
+import lombok.Setter;
 
 public class LobbyController {
 
     @FXML
-    private ListView listView;
+    private ListView<String> listView;
 
     @FXML
     private Button leaveButton;
@@ -22,6 +25,12 @@ public class LobbyController {
 
     @FXML
     private TextFlow textFlow;
+
+    @Setter
+    private Stage stage;
+
+    @Setter
+    private Client client;
 
 
 }
