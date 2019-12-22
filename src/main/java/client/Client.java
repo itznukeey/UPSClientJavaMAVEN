@@ -1,7 +1,7 @@
 package client;
 
-import client.communication.MessageSender;
 import client.communication.MessageReceiver;
+import client.communication.MessageSender;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -43,7 +43,6 @@ public class Client {
     private MessageSender messageSender;
 
     private MessageReceiver messageReceiver;
-
 
     public Client(String ip, int port) {
         this.serverIp = ip;

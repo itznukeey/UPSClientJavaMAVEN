@@ -4,9 +4,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
 public class LobbyList {
 
+    @Getter
     private List<Lobby> lobbies;
 
     public LobbyList() {

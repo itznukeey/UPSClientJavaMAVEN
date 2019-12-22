@@ -23,7 +23,6 @@ public class ListenerThread implements Runnable{
     private List<TCPData> pendingRequests;
 
     public ListenerThread() {
-        //Java zarucuje threadsafe pristup pouze u vektoru
         this.pendingRequests = new Vector<>();
     }
 

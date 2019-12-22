@@ -14,20 +14,19 @@ public class JavaFXMain extends Application {
     }
 
     @Override
-    public void start(Stage loginStage) {
+    public void start(Stage stage) {
 
         try {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
             Parent loginRoot = fxmlLoader.load();
             var loginController = fxmlLoader.<LoginController>getController();
-            loginStage.setScene(new Scene(loginRoot));
-
-
+            stage.setScene(new Scene(loginRoot));
+            loginController.setStage(stage);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        loginStage.show();
+        stage.show();
 
     }
 }

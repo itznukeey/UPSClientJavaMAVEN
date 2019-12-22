@@ -18,5 +18,8 @@ public class Lobby {
     @Setter
     private int playerLimit;
 
-
+    @Override
+    public String toString() {
+        return "Lobby " + id + " " + playerCount + " / " + playerLimit;
+    }
 }

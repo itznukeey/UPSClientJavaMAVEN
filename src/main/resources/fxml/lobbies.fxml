@@ -1,17 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" styleClass="anchor-pane" stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.LobbiesController">
-   <children>
-      <ListView fx:id="listView" layoutX="14.0" layoutY="101.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="605.0" prefWidth="936.0" stylesheets="@../css/styles.css" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="330.0" AnchorPane.topAnchor="101.0" />
-      <Text fill="WHITE" layoutX="14.0" layoutY="70.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server lobby list" wrappingWidth="518.9830722808838" AnchorPane.bottomAnchor="637.6953125" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="747.0169277191162" AnchorPane.topAnchor="25.1083984375">
-         <font>
-            <Font name="Open Sans Bold" size="42.0" />
-         </font>
-      </Text>
-   </children>
-</AnchorPane>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity"
+            minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" styleClass="anchor-pane"
+            stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/11.0.1"
+            fx:controller="controllers.LobbiesController">
+   <bottom>
+      <TilePane alignment="CENTER_RIGHT" hgap="10.0" prefHeight="59.0" prefWidth="1280.0" styleClass="anchor-pane"
+                stylesheets="@../css/styles.css" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="joinLobbyButton" mnemonicParsing="false" text="Join Lobby">
+               <font>
+                  <Font name="Open Sans Regular" size="12.0"/>
+               </font>
+            </Button>
+         </children>
+         <BorderPane.margin>
+            <Insets right="20.0"/>
+         </BorderPane.margin>
+      </TilePane>
+   </bottom>
+   <center>
+      <ListView fx:id="listView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER"/>
+   </center>
+</BorderPane>

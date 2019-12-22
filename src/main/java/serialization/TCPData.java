@@ -3,8 +3,6 @@ package serialization;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
 import lombok.Getter;
 
 public class TCPData {
@@ -16,16 +14,10 @@ public class TCPData {
     private DataType dataType;
 
     /**
-     * Identifikator
-     */
-    @Getter
-    private UUID guid;
-
-    /**
      * Obsahuje mapping poli a jejich hodnot
      */
     @Getter
-    private Map<String, String> fields;
+    private final Map<String, String> fields;
 
     /**
      * Zda-li jsou data editovatelna
@@ -43,8 +35,8 @@ public class TCPData {
     }
 
     public TCPData(DataType dataType) {
+        this.fields = new HashMap<>();
         this.dataType = dataType;
-        this.guid = UUID.randomUUID();
     }
 
     public String valueOf(String field) {
@@ -59,18 +51,12 @@ public class TCPData {
         fields.put(field,value);
     }
 
-    public boolean isResponse(TCPData data) {
-        return guid.equals(data.guid) && data.dataType.equals(DataType.RESPONSE);
-    }
-
     public String serialize() {
         var stringBuilder = new StringBuilder("{");
         fields.forEach((field, value) -> {
             stringBuilder.append(field).append(":").append(value).append(",");
         });
         stringBuilder.append("dataType").append(":").append(dataType.toString()).append(",");
-        stringBuilder.append("guid").append(":").append(guid.toString()).append(",");
-        stringBuilder.append("}");
         isEditable = false;
         return stringBuilder.toString();
     }

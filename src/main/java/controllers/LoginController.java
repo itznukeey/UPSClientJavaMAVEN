@@ -2,13 +2,17 @@ package controllers;
 
 import client.Client;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.Setter;
 
 public class LoginController {
 
@@ -26,7 +30,8 @@ public class LoginController {
     @FXML
     private Button loginButton;
 
-    private boolean isClientJoined = false;
+    @Setter
+    private Stage stage;
 
     @Getter
     private Client client;
@@ -64,7 +69,7 @@ public class LoginController {
             errorText.setText("Trying to validate user...");
 
             if (client.validate(loginField.getText())) {
-                isClientJoined = true;
+                setLobbiesScene();
             }
 
         } catch (Exception ex) {
@@ -75,5 +80,13 @@ public class LoginController {
                 errorText.setText("Could not close connection");
             }
         }
+    }
+
+    private void setLobbiesScene() {
+        var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/lobbies.fxml"));
+        Parent lobbiesRoot = fxmlLoader.getRoot();
+        var lobbiesController = fxmlLoader.<LobbiesController>getController();
+        lobbiesController.setClient(client);
+        stage.setScene(new Scene(lobbiesRoot));
     }
 }
