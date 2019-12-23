@@ -17,11 +17,11 @@
 }
 
 .list-view .list-cell:even {
-    -fx-background-color: rgb(255, 82, 58);
-    -fx-text-fill: rgb(227, 227, 227);
+    -fx-background-color: rgb(10, 10, 10);
+    -fx-text-fill: #f4fff5;
 }
 
 .list-view .list-cell:odd {
-    -fx-background-color: rgb(227, 227, 227);
-    -fx-text-fill: black;
+    -fx-background-color: rgb(0, 0, 0);
+    -fx-text-fill: #f4fff5;
 }

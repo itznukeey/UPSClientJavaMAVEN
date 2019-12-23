@@ -27,9 +27,10 @@ public class TCPData {
 
     /**
      * Konstruktor pro deserializaci
+     *
      * @param message string precteny z printwriteru
      */
-    public TCPData(String message) {
+    public TCPData(String message) throws IllegalStateException {
         this.fields = new HashMap<>();
         deserialize(message);
     }
@@ -51,12 +52,12 @@ public class TCPData {
         fields.put(field,value);
     }
 
-    public String serialize() {
+    public String serialize() throws IllegalStateException {
         var stringBuilder = new StringBuilder("{");
         fields.forEach((field, value) -> {
             stringBuilder.append(field).append(":").append(value).append(",");
         });
-        stringBuilder.append("dataType").append(":").append(dataType.toString()).append(",");
+        stringBuilder.append("dataType").append(":").append(dataType.toString()).append("}");
         isEditable = false;
         return stringBuilder.toString();
     }

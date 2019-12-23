@@ -1,82 +1,152 @@
 package client;
 
-import client.communication.MessageReceiver;
-import client.communication.MessageSender;
+import controllers.LobbiesController;
+import controllers.LobbyController;
+import controllers.LoginController;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.time.Duration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.Setter;
+import serialization.TCPData;
 
 public class Client {
 
-    private static final Logger LOGGER = Logger.getLogger(Client.class.getName());
+    private final Stage stage;
+    private String ip;
+    private int port;
+    private Socket socket;
+    @Setter
+    private State state;
 
-    private static final Duration DURATION_BEFORE_TIMEOUT = Duration.ofSeconds(5);
+    @Setter
+    private String username;
 
-    static {
-        LOGGER.setLevel(Level.ALL);
-    }
+    private LoginController loginController;
 
-    /**
-     * Ip serveru
-     */
-    private String serverIp;
+    private LobbiesController lobbiesController;
 
-    /**
-     * Port serveru
-     */
-    private Integer serverPort;
-
-    /**
-     * Socket k serveru
-     */
-    private Socket serverSocket;
+    private LobbyController lobbyController;
 
     @Getter
-    private ClientData data;
+    private MessageReader messageReader;
 
-    private MessageSender messageSender;
+    @Getter
+    private MessageWriter messageWriter;
 
-    private MessageReceiver messageReceiver;
+    private PingService pingService;
 
-    public Client(String ip, int port) {
-        this.serverIp = ip;
-        this.serverPort = port;
-        this.data = new ClientData();
+    public Client(Stage stage) {
+        this.stage = stage;
+        prepareLoginScene();
     }
 
-    public void connect() throws IOException {
-        serverSocket = new Socket(serverIp, serverPort);
-     //   serverSocket.setSoTimeout((int) DURATION_BEFORE_TIMEOUT.toMillis());
-        LOGGER.info("Successfully connected to the server.");
-        this.messageReceiver = new MessageReceiver(new BufferedReader(new InputStreamReader(serverSocket.getInputStream())));
-        this.messageSender = new MessageSender(new PrintWriter(serverSocket.getOutputStream(), true));
-    }
+    public boolean connect(String ip, int port) {
 
-    public boolean validate(String username) throws IOException {
-        LOGGER.info("Attempting to join to server using username: " + username);
-        messageSender.sendLoginRequest(username);
-
-        if (messageReceiver.getLoginResponse()) {
-            data.setUsername(username);
-            return true;
+        try {
+            this.socket = new Socket(ip, port);
+            this.ip = ip;
+            this.port = port;
+            this.messageReader =
+                    new MessageReader(new BufferedReader(new InputStreamReader(socket.getInputStream())), this);
+            this.messageWriter = new MessageWriter(new PrintWriter(socket.getOutputStream()));
+        } catch (IOException ex) {
+            loginController.setServerUnreachable();
+            return false;
         }
 
-        return false;
+        messageReader.setOutput(messageWriter);
+        //Spuštění vlákna s čtením zpráv
+        new Thread(messageReader).start();
+        return true;
     }
 
-    public void getLobbyList() throws IOException {
-        data.setLobbyList(messageReceiver.getLobbyListResponse());
+    private void prepareLoginScene() {
+        try {
+            var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            Parent loginRoot = fxmlLoader.load();
+
+            loginController = fxmlLoader.getController();
+            loginController.setClient(this);
+
+            stage.setScene(new Scene(loginRoot));
+            stage.setResizable(false);
+            stage.show();
+
+            state = State.AUTHENTICATION;
+        } catch (IOException ex) {
+            System.err.println("Error fxml file of login scene is corrupted");
+        }
     }
 
-    public void closeConnection() throws IOException {
-        serverSocket.close();
+    public void prepareLobbyListScene() {
+        username = loginController.getUsername();
+        try {
+            var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/lobbies.fxml"));
+            Parent lobbiesRoot = fxmlLoader.load();
+            lobbiesController = fxmlLoader.getController();
+
+            stage.setResizable(true);
+            stage.setScene(new Scene(lobbiesRoot));
+
+            state = State.LOBBY_LIST;
+            lobbiesController.start();
+        } catch (IOException ex) {
+            System.err.println("Error fxml file of lobbies scene is corrupted");
+        }
     }
 
+    public void updateLobbyList(List<Lobby> lobbyList) {
+        lobbiesController.updateListView(lobbyList);
+    }
 
+    public void handleLobbyConnection(TCPData message) {
+    }
+
+    public void disconnect() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            System.err.println("Error while closing socket");
+        }
+
+    }
+
+    public void showUsernameNotUnique() {
+        loginController.showUsernameNotUnique();
+    }
+
+    public void prepareLobbyScene() {
+        try {
+            var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/lobby.fxml"));
+            Parent lobbyParent = fxmlLoader.load();
+            lobbyController = fxmlLoader.getController();
+
+            //Zavre vlakno pro aktualizaci seznamu mistnosti protoze jiz neni potreba
+            lobbiesController.closeLobbyListUpdater();
+
+            stage.setResizable(true);
+            stage.setScene(new Scene(lobbyParent));
+            state = State.LOBBY;
+        } catch (IOException e) {
+            System.err.println("Error fxml file of lobby scene is corrupted");
+        }
+
+    }
+
+    public void showLobbyNotJoinable() {
+        var alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error while joining lobby");
+        alert.setContentText("Lobby you tried to join has either started a game or is full");
+        alert.setHeaderText("Cannot join selected lobby");
+        alert.show();
+    }
 }

@@ -26,6 +26,7 @@ public class LobbiesController {
     @Setter
     private Stage stage;
 
+    @Getter
     private LobbyListUpdater lobbyListUpdater;
 
     protected void initialize() {
@@ -37,8 +38,12 @@ public class LobbiesController {
     }
 
     public void start() {
-        lobbyListUpdater = new LobbyListUpdater(this, client);
+        lobbyListUpdater = new LobbyListUpdater(client);
         new Thread(lobbyListUpdater).start();
+    }
+
+    public void closeLobbyListUpdater() {
+        lobbyListUpdater.stop();
     }
 
     @FXML

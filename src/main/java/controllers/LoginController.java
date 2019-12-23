@@ -1,16 +1,10 @@
 package controllers;
 
 import client.Client;
-import java.io.IOException;
 import java.util.regex.Pattern;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,13 +21,10 @@ public class LoginController {
     @FXML
     private Text errorText;
 
-    @FXML
-    private Button loginButton;
+    @Getter
+    private String username;
 
     @Setter
-    private Stage stage;
-
-    @Getter
     private Client client;
 
     private static final Pattern ADDRESS_PATTERN = Pattern.compile("^"
@@ -62,32 +53,19 @@ public class LoginController {
             return;
         }
 
-        try {
-            String[] address = addressField.getText().split(":");
-            this.client = new Client(address[0], Integer.parseInt(address[1]));
-            client.connect();
-            errorText.setText("Trying to validate user...");
-
-            if (client.validate(loginField.getText())) {
-                setLobbiesScene();
-            }
-
-        } catch (Exception ex) {
-            errorText.setText("Server is unreachable, please try again later.");
-            try {
-                client.closeConnection();
-            } catch (IOException ioex) {
-                errorText.setText("Could not close connection");
-            }
+        String[] address = addressField.getText().split(":");
+        if (client.connect(address[0], Integer.parseInt(address[1]))) {
+            username = loginField.getText();
+            client.getMessageWriter().sendAuthenticationRequest(username);
         }
+
     }
 
-    private void setLobbiesScene() {
-        var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/lobbies.fxml"));
-        Parent lobbiesRoot = fxmlLoader.getRoot();
-        var lobbiesController = fxmlLoader.<LobbiesController>getController();
-        lobbiesController.setClient(client);
-        lobbiesController.setStage(stage);
-        stage.setScene(new Scene(lobbiesRoot));
+    public void setServerUnreachable() {
+        errorText.setText("Server is unreachable, please try again");
+    }
+
+    public void showUsernameNotUnique() {
+        errorText.setText("Username already taken");
     }
 }

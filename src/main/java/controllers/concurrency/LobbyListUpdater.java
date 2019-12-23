@@ -1,21 +1,21 @@
 package controllers.concurrency;
 
 import client.Client;
-import controllers.LobbiesController;
-import javafx.application.Platform;
+import client.MessageWriter;
 
 public class LobbyListUpdater implements Runnable {
 
     private static final long UPDATE_RATE_MS = 2000;
-    private final LobbiesController lobbiesController;
 
-    private final Client client;
+    private final MessageWriter messageWriter;
+
     private long lastUpdate;
+
     private Boolean stop = false;
 
-    public LobbyListUpdater(LobbiesController lobbiesController, Client client) {
-        this.lobbiesController = lobbiesController;
-        this.client = client;
+    public LobbyListUpdater(Client client) {
+        this.messageWriter = client.getMessageWriter();
+        messageWriter.sendLobbyUpdateRequest();
     }
 
     @Override
@@ -24,7 +24,7 @@ public class LobbyListUpdater implements Runnable {
         lastUpdate = System.currentTimeMillis();
         while (!stop) {
             if (System.currentTimeMillis() - lastUpdate > UPDATE_RATE_MS) {
-                Platform.runLater(() -> lobbiesController.updateListView(client.getLobbyList()));
+                messageWriter.sendLobbyUpdateRequest();
             }
         }
 
