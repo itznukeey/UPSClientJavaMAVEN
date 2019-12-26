@@ -38,7 +38,6 @@ public class MessageReader implements Runnable {
             try {
                 var message = input.readLine();
                 if (message != null) {
-                    System.out.println(message);
                     parse(message);
                 }
                 Thread.sleep(10);

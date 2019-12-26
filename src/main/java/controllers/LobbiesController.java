@@ -2,7 +2,6 @@ package controllers;
 
 import client.Client;
 import client.Lobby;
-import controllers.concurrency.LobbyListUpdater;
 import java.util.List;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -24,11 +23,12 @@ public class LobbiesController {
     @FXML
     private Button joinLobbyButton;
 
+    @FXML
+    private Button refreshButton;
+
     @Setter
     private Stage stage;
 
-    @Getter
-    private LobbyListUpdater lobbyListUpdater;
 
     protected void initialize() {
     }
@@ -40,19 +40,16 @@ public class LobbiesController {
         });
     }
 
-    public void start() {
-        lobbyListUpdater = new LobbyListUpdater(client);
-        new Thread(lobbyListUpdater).start();
-    }
-
-    public void closeLobbyListUpdater() {
-        lobbyListUpdater.stop();
-    }
 
     @FXML
     private void joinLobby() {
         var selected = listView.getSelectionModel().getSelectedItem();
+        client.getMessageWriter().sendJoinLobbyRequest(selected);
+    }
 
+    @FXML
+    private void refresh() {
+        client.getMessageWriter().sendLobbyUpdateRequest();
     }
 
 }

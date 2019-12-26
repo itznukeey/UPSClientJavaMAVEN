@@ -98,7 +98,6 @@ public class Client {
 
             state = State.LOBBY_LIST;
             lobbiesController.setClient(this);
-            lobbiesController.start();
         } catch (IOException ex) {
             System.err.println("Error fxml file of lobbies scene is corrupted");
         }
@@ -129,9 +128,6 @@ public class Client {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/lobby.fxml"));
             Parent lobbyParent = fxmlLoader.load();
             lobbyController = fxmlLoader.getController();
-
-            //Zavre vlakno pro aktualizaci seznamu mistnosti protoze jiz neni potreba
-            lobbiesController.closeLobbyListUpdater();
 
             stage.setScene(new Scene(lobbyParent));
             state = State.LOBBY;

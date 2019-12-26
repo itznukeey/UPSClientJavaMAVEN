@@ -30,6 +30,11 @@ public class MessageWriter {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.LOBBY_LIST);
         sendMessage(message.serialize());
-        System.out.println(message.serialize());
+    }
+
+    public void sendJoinLobbyRequest(Lobby selected) {
+        var message = new TCPData(DataType.REQUEST);
+        message.add(Fields.REQUEST, Values.JOIN_LOBBY);
+        message.add(Fields.LOBBY_ID, String.valueOf(selected.getId()));
     }
 }
