@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Collectors;
+import javafx.application.Platform;
 import lombok.Setter;
 import serialization.Fields;
 import serialization.TCPData;
@@ -36,8 +37,12 @@ public class MessageReader implements Runnable {
         while (!stop) {
             try {
                 var message = input.readLine();
-                parse(message);
-            } catch (IOException ex) {
+                if (message != null) {
+                    System.out.println(message);
+                    parse(message);
+                }
+                Thread.sleep(10);
+            } catch (IOException | InterruptedException ex) {
                 System.err.println("Incorrect data received, disconnecting");
                 client.disconnect();
             }
@@ -71,7 +76,7 @@ public class MessageReader implements Runnable {
         if (response.equals(Values.LOGIN)) {
             if (message.valueOf(Fields.IS_UNIQUE).equals(Values.TRUE)) {
                 client.setState(State.LOBBY_LIST);
-                client.prepareLobbyListScene();
+                Platform.runLater(client::prepareLobbyListScene);
             } else {
                 client.showUsernameNotUnique();
             }

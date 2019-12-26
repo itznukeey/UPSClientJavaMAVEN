@@ -4,6 +4,7 @@ import client.Client;
 import client.Lobby;
 import controllers.concurrency.LobbyListUpdater;
 import java.util.List;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -32,9 +33,11 @@ public class LobbiesController {
     protected void initialize() {
     }
 
-    public synchronized void updateListView(List<Lobby> lobbies) {
-        listView.getItems().clear();
-        listView.getItems().addAll(lobbies);
+    public void updateListView(List<Lobby> lobbies) {
+        Platform.runLater(() -> {
+            listView.getItems().clear();
+            listView.getItems().addAll(lobbies);
+        });
     }
 
     public void start() {

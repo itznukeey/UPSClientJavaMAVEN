@@ -30,5 +30,6 @@ public class MessageWriter {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.LOBBY_LIST);
         sendMessage(message.serialize());
+        System.out.println(message.serialize());
     }
 }

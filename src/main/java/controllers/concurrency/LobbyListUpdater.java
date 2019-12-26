@@ -25,6 +25,7 @@ public class LobbyListUpdater implements Runnable {
         while (!stop) {
             if (System.currentTimeMillis() - lastUpdate > UPDATE_RATE_MS) {
                 messageWriter.sendLobbyUpdateRequest();
+                lastUpdate = System.currentTimeMillis();
             }
         }
 
