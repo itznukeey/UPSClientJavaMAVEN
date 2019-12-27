@@ -43,8 +43,7 @@ public class LobbiesController {
 
     @FXML
     private void joinLobby() {
-        var selected = listView.getSelectionModel().getSelectedItem();
-        client.getMessageWriter().sendJoinLobbyRequest(selected);
+        client.getMessageWriter().sendJoinLobbyRequest(listView.getSelectionModel().getSelectedItem());
     }
 
     @FXML

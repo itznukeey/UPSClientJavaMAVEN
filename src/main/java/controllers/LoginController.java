@@ -13,16 +13,16 @@ public class LoginController {
     private static final int MAX_USERNAME_LENGTH = 10;
 
     @FXML
+    @Getter
     private TextField loginField;
 
     @FXML
+    @Getter
     private TextField addressField;
 
     @FXML
-    private Text errorText;
-
     @Getter
-    private String username;
+    private Text errorText;
 
     @Setter
     private Client client;
@@ -53,15 +53,10 @@ public class LoginController {
             return;
         }
 
-        String[] address = addressField.getText().split(":");
-        if (client.connect(address[0], Integer.parseInt(address[1]))) {
-            username = loginField.getText();
-            client.getMessageWriter().sendAuthenticationRequest(username);
-        }
-
+        client.login();
     }
 
-    public void setServerUnreachable() {
+    public void showServerUnreachable() {
         errorText.setText("Server is unreachable, please try again");
     }
 

@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * DTO reprezentujici info o lobby
+ */
 @AllArgsConstructor
 public class Lobby {
 

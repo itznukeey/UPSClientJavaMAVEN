@@ -2,30 +2,33 @@ package client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
-import lombok.Setter;
 import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
 
 public class MessageReader implements Runnable {
 
-    private final BufferedReader input;
-    private final Client client;
-    private Boolean stop = false;
-    @Setter
-    private MessageWriter output;
+    private BufferedReader input;
 
-    public MessageReader(BufferedReader input, Client client) {
-        this.client = client;
+    private final Client client;
+
+    private Boolean close = false;
+
+    private PingService pingService;
+
+    public MessageReader(BufferedReader input, Client client, PingService pingService) {
         this.input = input;
+        this.client = client;
+        this.pingService = pingService;
     }
 
-    public synchronized void stop() {
-        stop = true;
+    public synchronized void closeThread() {
+        close = true;
     }
 
     /**
@@ -34,14 +37,15 @@ public class MessageReader implements Runnable {
     @Override
     public void run() {
 
-        while (!stop) {
+        while (!close) {
             try {
                 var message = input.readLine();
                 if (message != null) {
+                    pingService.setLastResponseReceived(LocalDateTime.now());
                     parse(message);
+                    System.out.println(message);
                 }
-                Thread.sleep(10);
-            } catch (IOException | InterruptedException ex) {
+            } catch (IOException ex) {
                 System.err.println("Incorrect data received, disconnecting");
                 client.disconnect();
             }
@@ -51,17 +55,24 @@ public class MessageReader implements Runnable {
     private void parse(String messageString) {
         var message = new TCPData(messageString);
 
-        switch (message.getDataType()) {
-            case REQUEST:
-                processRequest(message);
-                break;
-            case RESPONSE:
-                processResponse(message);
-                break;
-            case PING:
+        try {
+            switch (message.getDataType()) {
+                case REQUEST:
+                    processRequest(message);
+                    break;
+                case RESPONSE:
+                    processResponse(message);
+                    break;
+                case PING:
 
-            default:
-                break;
+                default:
+                    break;
+            }
+        } catch (NullPointerException | IllegalStateException ex) {
+            ex.printStackTrace(); //todo remove this
+            System.err.println("Received incorrect message");
+            client.disconnect();
+            System.exit(-1);
         }
     }
 
@@ -102,10 +113,9 @@ public class MessageReader implements Runnable {
         }
 
         if (response.equals(Values.JOIN_LOBBY)) {
-            client.handleLobbyConnection(message);
-
             if (message.valueOf(Fields.IS_JOINABLE).equals(Values.TRUE)) {
-                client.prepareLobbyScene();
+                client.setLobbyId(Integer.parseInt(message.valueOf(Fields.LOBBY_ID)));
+                Platform.runLater(() -> client.prepareLobbyScene(client.parseUsernames(message)));
             } else {
                 client.showLobbyNotJoinable();
             }

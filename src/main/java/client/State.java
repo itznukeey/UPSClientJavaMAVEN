@@ -6,6 +6,7 @@ public enum State {
     AUTHENTICATION("authentication"),
     LOBBY_LIST("lobbyList"),
     LOBBY("lobby"),
+    DISCONNECTED("disconnected"),
     GAME("game");
 
     private String string;

@@ -6,8 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="UPSClientJava" />
+        <module name="UPSJavaClient" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="UPSClientJava" target="13" />
+    </bytecodeTargetLevel>
   </component>
 </project>
