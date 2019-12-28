@@ -15,51 +15,46 @@ public class MessageWriter {
     }
 
     private synchronized void sendMessage(String serializedMessage) {
+        System.out.println(serializedMessage);
         output.print(serializedMessage);
         output.flush();
     }
 
-    public void sendPing() {
+    public synchronized void sendPing() {
         sendMessage(new TCPData(DataType.PING).serialize());
     }
 
-    public void sendAuthenticationRequest(String username) {
+    public synchronized void sendAuthenticationRequest(String username) {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.LOGIN);
         message.add(Fields.USERNAME, username);
         sendMessage(message.serialize());
     }
 
-    public void sendLobbyUpdateRequest() {
+    public synchronized void sendLobbyUpdateRequest() {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.LOBBY_LIST);
         sendMessage(message.serialize());
     }
 
-    public void sendJoinLobbyRequest(Lobby selected) {
+    public synchronized void sendJoinLobbyRequest(Lobby selected) {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.JOIN_LOBBY);
         message.add(Fields.LOBBY_ID, String.valueOf(selected.getId()));
         sendMessage(message.serialize());
     }
 
-    public void sendVoteStartRequest() {
+    public synchronized void sendVoteStartRequest() {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.VOTE_START);
         sendMessage(message.serialize());
     }
 
-    public void sendLeaveLobbyRequest(Integer lobbyId) {
+    public synchronized void sendLeaveLobbyRequest(Integer lobbyId) {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.LEAVE_LOBBY);
         message.add(Fields.LOBBY_ID, String.valueOf(lobbyId));
         sendMessage(message.serialize());
     }
 
-    public void sendReconnectRequest(String username) {
-        var message = new TCPData(DataType.REQUEST);
-        message.add(Fields.REQUEST, Values.RECONNECT);
-        message.add(Fields.USERNAME, username);
-        sendMessage(message.serialize());
-    }
 }

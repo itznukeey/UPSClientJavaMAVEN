@@ -57,7 +57,7 @@ public class TCPData {
         fields.forEach((field, value) -> {
             stringBuilder.append(field).append(":").append(value).append(",");
         });
-        stringBuilder.append("dataType").append(":").append(dataType.toString()).append("}");
+        stringBuilder.append("dataType").append(":").append(dataType.toString()).append("}\n");
         isEditable = false;
         return stringBuilder.toString();
     }

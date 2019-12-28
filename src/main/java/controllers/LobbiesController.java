@@ -51,4 +51,9 @@ public class LobbiesController {
         client.getMessageWriter().sendLobbyUpdateRequest();
     }
 
+    @FXML
+    private void disconnect() {
+        client.disconnect();
+    }
+
 }

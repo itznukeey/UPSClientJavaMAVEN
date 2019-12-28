@@ -3,6 +3,12 @@
 
     -fx-background-color: rgb(255, 82, 58);
     -fx-text-fill: rgb(227, 227, 227);
+    -fx-font-size: 15.0;
+}
+
+.button:hover {
+    -fx-background-color: rgb(9, 255, 110);
+    -fx-text-fill: rgb(9, 9, 9);
 }
 
 
@@ -28,11 +34,15 @@
 }
 
 .list-cell:odd {
-    -fx-background-color: rgb(17, 18, 18);
+    -fx-background-color: rgb(7, 8, 8);
     -fx-text-fill: #f4fff5;
 }
 
 .list-cell:filled:hover {
     -fx-background-color: #ffb487;
     -fx-text-fill: white;
+}
+
+.list-cell {
+    -fx-font-size: 15.0;
 }

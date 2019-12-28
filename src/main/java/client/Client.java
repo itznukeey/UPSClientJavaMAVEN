@@ -65,7 +65,7 @@ public class Client {
             this.socket = new Socket(ip, port);
             this.ip = ip;
             this.port = port;
-            this.messageWriter = new MessageWriter(new PrintWriter(socket.getOutputStream()));
+            this.messageWriter = new MessageWriter(new PrintWriter(socket.getOutputStream(), true));
             this.pingService = new PingService(this, messageWriter);
             this.messageReader = new MessageReader(new BufferedReader(new InputStreamReader(socket.getInputStream())),
                     this, pingService);
@@ -110,6 +110,7 @@ public class Client {
             stage.show();
         } catch (IOException ex) {
             System.err.println("Error fxml file of login scene is corrupted");
+            System.exit(-1);
         }
     }
 
@@ -128,6 +129,7 @@ public class Client {
             state = State.AUTHENTICATION;
         } catch (IOException ex) {
             System.err.println("Error fxml file of login scene is corrupted");
+            System.exit(-1);
         }
     }
 
@@ -142,6 +144,7 @@ public class Client {
             stage.setScene(new Scene(lobbiesRoot));
         } catch (IOException ex) {
             System.err.println("Error fxml file of lobbies scene is corrupted");
+            System.exit(-1);
         }
     }
 
@@ -184,6 +187,7 @@ public class Client {
             state = State.LOBBY;
         } catch (IOException e) {
             System.err.println("Error fxml file of lobby scene is corrupted");
+            System.exit(-1);
         }
 
     }
@@ -205,24 +209,12 @@ public class Client {
 
             list.add(value);
         });
+        list.forEach(System.out::println);
         return list;
     }
 
-    public void restoreState(State state) {
-        if (state.equals(State.LOBBY_LIST)) {
-            prepareLobbyListScene();
-            return;
-        }
+    public void restoreState(TCPData message) {
 
-        //todo fill
-        if (state.equals(State.LOBBY)) {
-            prepareLobbyScene(null);
-        }
-
-        //todo fill
-        if (state.equals(State.GAME)) {
-
-        }
     }
 
 }

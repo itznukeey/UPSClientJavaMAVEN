@@ -84,11 +84,13 @@ public class MessageReader implements Runnable {
         var response = message.valueOf(Fields.RESPONSE);
 
         if (response.equals(Values.LOGIN)) {
-            if (message.valueOf(Fields.IS_UNIQUE).equals(Values.TRUE)) {
+            pingService.setSendPingMessages(true);
+
+            if (message.valueOf(Fields.IS_NEW).equals(Values.TRUE)) {
                 client.setState(State.LOBBY_LIST);
                 Platform.runLater(client::prepareLobbyListScene);
             } else {
-                client.showUsernameNotUnique();
+                client.restoreState(message);
             }
             return;
         }
@@ -117,7 +119,7 @@ public class MessageReader implements Runnable {
                 client.setLobbyId(Integer.parseInt(message.valueOf(Fields.LOBBY_ID)));
                 Platform.runLater(() -> client.prepareLobbyScene(client.parseUsernames(message)));
             } else {
-                client.showLobbyNotJoinable();
+                Platform.runLater(client::showLobbyNotJoinable);
             }
         }
 

@@ -12,9 +12,9 @@ import lombok.Setter;
  */
 public class PingService implements Runnable {
 
-    private static final Duration MAX_DURATION_BEFORE_ALERT = Duration.ofSeconds(10);
+    private static final Duration MAX_DURATION_BEFORE_ALERT = Duration.ofSeconds(1000);
 
-    private static final Duration PING_SEND_DURATION = Duration.ofSeconds(1);
+    private static final Duration PING_PERIOD = Duration.ofSeconds(3);
 
     private MessageWriter messageWriter;
 
@@ -30,11 +30,13 @@ public class PingService implements Runnable {
 
     private Boolean alertSent = false;
 
+    @Setter
+    private Boolean sendPingMessages = false;
+
     public PingService(Client client, MessageWriter messageWriter) {
         this.lastResponseReceived = LocalDateTime.now();
         this.client = client;
         this.messageWriter = messageWriter;
-        messageWriter.sendPing();
         lastPingSent = LocalDateTime.now();
     }
 
@@ -52,7 +54,8 @@ public class PingService implements Runnable {
             }
 
             //Sluzba standardne posila pouze ping, aby se zajistilo ze server bude na ping alespon 1 za 100 ms odpovidat
-            if (Duration.between(lastPingSent, LocalDateTime.now()).compareTo(PING_SEND_DURATION) > 0) {
+            if (sendPingMessages &&
+                    Duration.between(lastPingSent, LocalDateTime.now()).compareTo(PING_PERIOD) > 0) {
                 messageWriter.sendPing();
                 lastPingSent = LocalDateTime.now();
             }
