@@ -11,7 +11,6 @@
     -fx-text-fill: rgb(9, 9, 9);
 }
 
-
 .text-field {
     -fx-background-color: rgb(23, 25, 24);
     -fx-text-fill: #f4fff5;
@@ -21,7 +20,6 @@
 .anchor-pane {
     -fx-background-color: rgb(4, 6, 5);
 }
-
 
 .list-cell:filled:selected:focused, .list-cell:filled:selected {
     -fx-background-color: rgb(255, 82, 58);
@@ -46,3 +44,9 @@
 .list-cell {
     -fx-font-size: 15.0;
 }
+
+/*.text-area {*/
+/*    -fx-font-size: 14.0;*/
+/*    -fx-background-color: rgb(4, 6, 5);*/
+/*    -fx-text-fill: #f4fff5;*/
+/*}*/

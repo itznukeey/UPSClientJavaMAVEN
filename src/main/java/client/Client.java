@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -18,6 +19,7 @@ import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import serialization.TCPData;
+import serialization.Values;
 
 public class Client {
 
@@ -162,7 +164,7 @@ public class Client {
             messageReader.closeThread();
             pingService.closeThread();
 
-            prepareLoginAfterDC();
+            Platform.runLater(this::prepareLoginAfterDC);
 
         } catch (IOException e) {
             System.err.println("Error while attempting to close socket");
@@ -209,7 +211,6 @@ public class Client {
 
             list.add(value);
         });
-        list.forEach(System.out::println);
         return list;
     }
 
@@ -217,4 +218,18 @@ public class Client {
 
     }
 
+    public void updatePlayerList(TCPData message) {
+        lobbyController.updateUsersList(parseUsernames(message));
+        messageWriter.sendPlayerListUpdated();
+    }
+
+    public void showPlayerConnected(TCPData message) {
+        lobbyController.showPlayerConnected(message.valueOf(Values.USERNAME));
+        messageWriter.sendShownPlayerConnected();
+    }
+
+    public void showPlayerDisconnected(TCPData message) {
+        lobbyController.showPlayerDisconnected(message.valueOf(Values.USERNAME));
+        messageWriter.sendShownPlayerDisconnected();
+    }
 }

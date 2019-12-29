@@ -11,4 +11,7 @@ public class Values {
     public static final String VOTE_START = "voteStart";
     public static final String UPDATE_PLAYER_LIST = "updatePlayerList";
     public static final String LEAVE_LOBBY = "leaveLobby";
+    public static final String SHOW_PLAYER_DISCONNECTED = "showPlayerDisconnected";
+    public static final String SHOW_PLAYER_CONNECTED = "showPlayerConnected";
+    public static final String USERNAME = "username";
 }

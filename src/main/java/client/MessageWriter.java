@@ -15,46 +15,63 @@ public class MessageWriter {
     }
 
     private synchronized void sendMessage(String serializedMessage) {
-        System.out.println(serializedMessage);
+        System.out.print(serializedMessage);
         output.print(serializedMessage);
         output.flush();
     }
 
-    public synchronized void sendPing() {
+    public void sendPing() {
         sendMessage(new TCPData(DataType.PING).serialize());
     }
 
-    public synchronized void sendAuthenticationRequest(String username) {
+    public void sendAuthenticationRequest(String username) {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.LOGIN);
         message.add(Fields.USERNAME, username);
         sendMessage(message.serialize());
     }
 
-    public synchronized void sendLobbyUpdateRequest() {
+    public void sendLobbyUpdateRequest() {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.LOBBY_LIST);
         sendMessage(message.serialize());
     }
 
-    public synchronized void sendJoinLobbyRequest(Lobby selected) {
+    public void sendJoinLobbyRequest(Lobby selected) {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.JOIN_LOBBY);
         message.add(Fields.LOBBY_ID, String.valueOf(selected.getId()));
         sendMessage(message.serialize());
     }
 
-    public synchronized void sendVoteStartRequest() {
+    public void sendVoteStartRequest() {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.VOTE_START);
         sendMessage(message.serialize());
     }
 
-    public synchronized void sendLeaveLobbyRequest(Integer lobbyId) {
+    public void sendLeaveLobbyRequest(Integer lobbyId) {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.LEAVE_LOBBY);
         message.add(Fields.LOBBY_ID, String.valueOf(lobbyId));
         sendMessage(message.serialize());
     }
 
+    public void sendPlayerListUpdated() {
+        var message = new TCPData(DataType.RESPONSE);
+        message.add(Fields.RESPONSE, Values.UPDATE_PLAYER_LIST);
+        sendMessage(message.serialize());
+    }
+
+    public void sendShownPlayerConnected() {
+        var message = new TCPData(DataType.RESPONSE);
+        message.add(Fields.RESPONSE, Values.SHOW_PLAYER_CONNECTED);
+        sendMessage(message.serialize());
+    }
+
+    public void sendShownPlayerDisconnected() {
+        var message = new TCPData(DataType.RESPONSE);
+        message.add(Fields.RESPONSE, Values.SHOW_PLAYER_DISCONNECTED);
+        sendMessage(message.serialize());
+    }
 }

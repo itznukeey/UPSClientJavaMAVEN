@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import lombok.Setter;
 
 public class LobbyController {
@@ -20,7 +20,7 @@ public class LobbyController {
     private Text playerCountText;
 
     @FXML
-    private TextFlow textFlow;
+    private TextArea textArea;
 
     @Setter
     private Client client;
@@ -40,5 +40,13 @@ public class LobbyController {
         listView.getItems().clear();
         listView.getItems().addAll(users.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList()));
         playerCountText.setText("Players in lobby: " + listView.getItems().size());
+    }
+
+    public void showPlayerConnected(String player) {
+        textArea.appendText("Player " + player + " has connected \n");
+    }
+
+    public void showPlayerDisconnected(String player) {
+        textArea.appendText("Player " + player + " has disconnected \n");
     }
 }

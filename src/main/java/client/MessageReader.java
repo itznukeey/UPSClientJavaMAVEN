@@ -76,8 +76,16 @@ public class MessageReader implements Runnable {
         }
     }
 
-    private void processRequest(TCPData request) {
+    private void processRequest(TCPData message) {
+        var request = message.valueOf(Fields.REQUEST);
 
+        if (request.equals(Values.UPDATE_PLAYER_LIST)) {
+            Platform.runLater(() -> client.updatePlayerList(message));
+        } else if (request.equals(Values.SHOW_PLAYER_CONNECTED)) {
+            Platform.runLater(() -> client.showPlayerConnected(message));
+        } else if (request.equals(Values.SHOW_PLAYER_DISCONNECTED)) {
+            Platform.runLater(() -> client.showPlayerDisconnected(message));
+        }
     }
 
     private void processResponse(TCPData message) {
@@ -92,10 +100,7 @@ public class MessageReader implements Runnable {
             } else {
                 client.restoreState(message);
             }
-            return;
-        }
-
-        if (response.equals(Values.LOBBY_LIST)) {
+        } else if (response.equals(Values.LOBBY_LIST)) {
 
             var lobbyList = new ArrayList<Lobby>();
             message.getFields().forEach((field, value) -> {
@@ -111,10 +116,7 @@ public class MessageReader implements Runnable {
             //Aktualizuje list, který předtím ještě seřadí podle id
             client.updateLobbyList(
                     lobbyList.stream().sorted(Comparator.comparingInt(Lobby::getId)).collect(Collectors.toList()));
-            return;
-        }
-
-        if (response.equals(Values.JOIN_LOBBY)) {
+        } else if (response.equals(Values.JOIN_LOBBY)) {
             if (message.valueOf(Fields.IS_JOINABLE).equals(Values.TRUE)) {
                 client.setLobbyId(Integer.parseInt(message.valueOf(Fields.LOBBY_ID)));
                 Platform.runLater(() -> client.prepareLobbyScene(client.parseUsernames(message)));
