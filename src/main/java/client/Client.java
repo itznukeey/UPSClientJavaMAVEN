@@ -271,6 +271,7 @@ public class Client {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/game.fxml"));
             Parent root = fxmlLoader.load();
             gameController = fxmlLoader.getController();
+            gameController.setClient(this);
             gameController.buildScene(message);
             stage.setScene(new Scene(root));
         } catch (IOException ex) {

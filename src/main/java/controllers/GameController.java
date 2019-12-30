@@ -1,5 +1,6 @@
 package controllers;
 
+import client.Client;
 import client.game.data.Card;
 import client.game.data.Rank;
 import client.game.data.Suit;
@@ -11,8 +12,10 @@ import java.util.Map;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
+import lombok.Setter;
 import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
@@ -25,9 +28,19 @@ public class GameController {
     @FXML
     private TextArea textArea;
 
+    @FXML
+    private Button hitButton;
+
+    @FXML
+    private Button standButton;
+
+    @Setter
+    private Client client;
+
     private Map<String, PlayerCellController> playerCellMap;
 
     private Integer playerCount;
+
 
     private void appendText(String text) {
         textArea.appendText(text + "\n");
@@ -58,6 +71,13 @@ public class GameController {
         dealerCellController.setCardList(cards);
         gridPane.addColumn(playerCount, dealerCell);
         playerCellMap.put("Dealer", dealerCellController);
+
+        setButtonFunctions();
+    }
+
+    private void setButtonFunctions() {
+        hitButton.setOnAction(actionEvent -> client.getMessageWriter().sendHit());
+        standButton.setOnAction(actionEvent -> client.getMessageWriter().sendStand());
     }
 
     private List<Card> getCards(TCPData message, int i) {

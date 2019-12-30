@@ -80,4 +80,18 @@ public class MessageWriter {
         message.add(Fields.RESPONSE, Values.CONFIRM_PARTICIPATION);
         sendMessage(message.serialize());
     }
+
+    public void sendHit() {
+        var message = new TCPData(DataType.RESPONSE);
+        message.add(Fields.RESPONSE, Values.TURN);
+        message.add(Fields.TURN_TYPE, Values.HIT);
+        sendMessage(message.serialize());
+    }
+
+    public void sendStand() {
+        var message = new TCPData(DataType.RESPONSE);
+        message.add(Fields.RESPONSE, Values.TURN);
+        message.add(Fields.TURN_TYPE, Values.STAND);
+        sendMessage(message.serialize());
+    }
 }
