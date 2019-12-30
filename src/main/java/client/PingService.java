@@ -8,13 +8,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Sluzba, ktera po nekolika vterinach pinguje klienta
+ * Sluzba, ktera po nekolika vterinach pinguje server
  */
 public class PingService implements Runnable {
 
     private static final Duration MAX_DURATION_BEFORE_ALERT = Duration.ofSeconds(10);
 
-    private static final Duration PING_PERIOD = Duration.ofSeconds(5);
+    private static final Duration PING_PERIOD = Duration.ofSeconds(7);
 
     private MessageWriter messageWriter;
 

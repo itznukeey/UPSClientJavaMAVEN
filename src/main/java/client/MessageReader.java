@@ -85,6 +85,21 @@ public class MessageReader implements Runnable {
             Platform.runLater(() -> client.showPlayerConnected(message));
         } else if (request.equals(Values.SHOW_PLAYER_DISCONNECTED)) {
             Platform.runLater(() -> client.showPlayerDisconnected(message));
+        } else if (request.equals(Values.CONFIRM_PARTICIPATION)) {
+            Platform.runLater(client::confirmParticipation);
+        } else if (request.equals(Values.SHOW_GAME_START_FAILED)) {
+            Platform.runLater(client::showGameStartFailed);
+        } else if (request.equals(Values.UPDATE_BOARD)) {
+            Platform.runLater(() -> client.updateBoard(message));
+        } else if (request.equals(Values.SHOW_RESULTS)) {
+            Platform.runLater(() -> client.showResults(message));
+        } else if (request.equals(Values.JOIN_LOBBY)) {
+            Platform.runLater(() -> {
+                client.setLobbyId(Integer.parseInt(message.valueOf(Fields.LOBBY_ID)));
+                Platform.runLater(() -> client.prepareLobbyScene(client.parseUsernames(message)));
+            });
+        } else if (request.equals(Values.SHOW_PLAYER_TURN)) {
+            Platform.runLater(() -> client.showPlayerTurn(message));
         }
     }
 
@@ -95,24 +110,12 @@ public class MessageReader implements Runnable {
             pingService.setSendPingMessages(true);
 
             if (message.valueOf(Fields.IS_NEW).equals(Values.TRUE)) {
-                client.setState(State.LOBBY_LIST);
                 Platform.runLater(client::prepareLobbyListScene);
             } else {
-                client.restoreState(message);
+                Platform.runLater(() -> client.restoreState(message));
             }
         } else if (response.equals(Values.LOBBY_LIST)) {
-
-            var lobbyList = new ArrayList<Lobby>();
-            message.getFields().forEach((field, value) -> {
-                if (field.equals(Fields.DATA_TYPE) || field.equals(Fields.RESPONSE)) {
-                    return;
-                }
-
-                String[] lobbyInfo = value.split(";");
-                lobbyList.add(new Lobby(
-                        Integer.parseInt(lobbyInfo[0]), Integer.parseInt(lobbyInfo[1]), Integer.parseInt(lobbyInfo[2])));
-            });
-
+            var lobbyList = parseLobbyList(message);
             //Aktualizuje list, který předtím ještě seřadí podle id
             client.updateLobbyList(
                     lobbyList.stream().sorted(Comparator.comparingInt(Lobby::getId)).collect(Collectors.toList()));
@@ -126,5 +129,19 @@ public class MessageReader implements Runnable {
         }
 
 
+    }
+
+    private ArrayList<Lobby> parseLobbyList(TCPData message) {
+        var lobbyList = new ArrayList<Lobby>();
+        message.getFields().forEach((field, value) -> {
+            if (field.equals(Fields.DATA_TYPE) || field.equals(Fields.RESPONSE)) {
+                return;
+            }
+
+            String[] lobbyInfo = value.split(";");
+            lobbyList.add(new Lobby(
+                    Integer.parseInt(lobbyInfo[0]), Integer.parseInt(lobbyInfo[1]), Integer.parseInt(lobbyInfo[2])));
+        });
+        return lobbyList;
     }
 }

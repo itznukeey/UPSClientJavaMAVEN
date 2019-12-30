@@ -15,6 +15,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import serialization.Fields;
 import serialization.TCPData;
+import serialization.Values;
 
 public class GameController {
 
@@ -27,6 +28,10 @@ public class GameController {
     private Map<String, PlayerCellController> playerCellMap;
 
     private Integer playerCount;
+
+    private void appendText(String text) {
+        textArea.appendText(text + "\n");
+    }
 
     public void buildScene(TCPData message) throws IOException {
         playerCellMap = new HashMap<>();
@@ -52,7 +57,7 @@ public class GameController {
         var cards = getDealerCards(message);
         dealerCellController.setCardList(cards);
         gridPane.addColumn(playerCount, dealerCell);
-        playerCellMap.put(dealerCellController.getUsername().getText(), dealerCellController);
+        playerCellMap.put("Dealer", dealerCellController);
     }
 
     private List<Card> getCards(TCPData message, int i) {
@@ -92,8 +97,6 @@ public class GameController {
     }
 
     public void updateData(TCPData message) {
-        playerCount = Integer.parseInt(message.valueOf(Fields.PLAYER_COUNT));
-
         for (var playerNo = 0; playerNo < playerCount; playerNo++) {
             var controller = playerCellMap.get(message.valueOf(Fields.PLAYER + playerNo));
             var cards = getCards(message, playerNo);
@@ -104,5 +107,29 @@ public class GameController {
         var dealerController = playerCellMap.get(message.valueOf("Dealer"));
         var cards = getDealerCards(message);
         dealerController.setCardList(cards);
+    }
+
+    public void showResults(TCPData message) {
+        for (var playerNo = 0; playerNo < playerCount; playerNo++) {
+            var controller = playerCellMap.get(message.valueOf(Fields.PLAYER + playerNo));
+            controller.setGameResult(message.valueOf(Fields.PLAYER + playerNo));
+        }
+        var dealerController = playerCellMap.get("Dealer");
+        var cards = new ArrayList<>(dealerController.getCardList().getItems());
+
+        cards.forEach(card -> card.setShow(true));
+        dealerController.setCardList(cards);
+        dealerController.setTotalScore(message.valueOf(Fields.TOTAL_VALUE));
+    }
+
+    public void showTurn(TCPData message) {
+        var player = message.valueOf(Fields.USERNAME);
+        if (message.valueOf(Fields.TURN_TYPE).equals(Values.STAND)) {
+            appendText("Player " + player + " stood.");
+        } else {
+            String[] cardProperties = message.valueOf(Fields.CARD).split(";");
+            var card = new Card(Suit.valueOf(cardProperties[0]), Rank.valueOf(cardProperties[1]), true);
+            appendText("Player " + player + " hit and got " + card.toString());
+        }
     }
 }

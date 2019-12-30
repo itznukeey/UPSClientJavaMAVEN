@@ -1,6 +1,7 @@
 package client.game.data;
 
 import lombok.AllArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 public class Card {
@@ -9,6 +10,7 @@ public class Card {
 
     private Rank rank;
 
+    @Setter
     private boolean show;
 
     @Override
@@ -17,4 +19,5 @@ public class Card {
             return Suit.unicodeString(suit) + " " + Rank.unicodeString(rank);
         } else return "???";
     }
+
 }

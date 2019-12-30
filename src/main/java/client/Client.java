@@ -1,5 +1,6 @@
 package client;
 
+import controllers.GameController;
 import controllers.LobbiesController;
 import controllers.LobbyController;
 import controllers.LoginController;
@@ -15,6 +16,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +29,7 @@ public class Client {
 
     private String ip;
 
-    private int port;
+    private Integer port;
 
     private Socket socket;
 
@@ -47,6 +49,8 @@ public class Client {
     private LobbiesController lobbiesController;
 
     private LobbyController lobbyController;
+
+    private GameController gameController;
 
     @Getter
     private MessageReader messageReader;
@@ -231,5 +235,58 @@ public class Client {
     public void showPlayerDisconnected(TCPData message) {
         lobbyController.showPlayerDisconnected(message.valueOf(Values.USERNAME));
         messageWriter.sendShownPlayerDisconnected();
+    }
+
+    public void confirmParticipation() {
+        var alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Game will start soon");
+        alert.setHeaderText("Confirm your participation");
+        alert.setContentText("Press OK to confirm participation, otherwise you will be removed from the lobby");
+        var result = alert.showAndWait();
+
+        if (result.get() == ButtonType.OK) {
+            messageWriter.sendConfirmParticipation();
+        }
+    }
+
+    public void showGameStartFailed() {
+        var alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Game could not start");
+        alert.setHeaderText("Not enough players confirmed participation");
+        alert.setContentText("Vote to start to make lobby start faster");
+        alert.show();
+    }
+
+    public void updateBoard(TCPData message) {
+        if (state == State.LOBBY) {
+            state = State.GAME;
+            prepareGameScene(message);
+        } else {
+            updateGame(message);
+        }
+    }
+
+    private void prepareGameScene(TCPData message) {
+        try {
+            var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/game.fxml"));
+            Parent root = fxmlLoader.load();
+            gameController = fxmlLoader.getController();
+            gameController.buildScene(message);
+            stage.setScene(new Scene(root));
+        } catch (IOException ex) {
+            System.err.println("Error fxml game scene file is corrupted");
+        }
+    }
+
+    private void updateGame(TCPData message) {
+        gameController.updateData(message);
+    }
+
+    public void showResults(TCPData message) {
+        gameController.showResults(message);
+    }
+
+    public void showPlayerTurn(TCPData message) {
+        gameController.showTurn(message);
     }
 }

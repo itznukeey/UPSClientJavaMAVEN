@@ -74,4 +74,10 @@ public class MessageWriter {
         message.add(Fields.RESPONSE, Values.SHOW_PLAYER_DISCONNECTED);
         sendMessage(message.serialize());
     }
+
+    public void sendConfirmParticipation() {
+        var message = new TCPData(DataType.RESPONSE);
+        message.add(Fields.RESPONSE, Values.CONFIRM_PARTICIPATION);
+        sendMessage(message.serialize());
+    }
 }

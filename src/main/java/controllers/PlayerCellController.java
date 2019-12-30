@@ -16,6 +16,7 @@ public class PlayerCellController {
     private Text username;
 
     @FXML
+    @Getter
     private ListView<Card> cardList;
 
     @FXML
