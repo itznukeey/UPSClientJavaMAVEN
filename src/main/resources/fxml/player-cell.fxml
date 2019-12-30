@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="vBox" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"
+      minHeight="-Infinity" minWidth="-Infinity" prefHeight="520.0" prefWidth="200.0" styleClass="anchor-pane"
+      stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/11.0.1"
+      fx:controller="controllers.PlayerCellController">
+    <children>
+        <Text fx:id="username" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="player-name" text="Username"
+              textAlignment="CENTER">
+            <font>
+                <Font name="Roboto Medium" size="28.0"/>
+            </font>
+        </Text>
+        <ListView fx:id="cardList" prefHeight="302.0" prefWidth="200.0"/>
+        <Text fx:id="totalScore" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="player-details" text="Total"
+              textAlignment="CENTER">
+            <font>
+                <Font name="Roboto Medium" size="28.0"/>
+            </font>
+        </Text>
+        <Text fx:id="gameResult" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="player-details"
+              textAlignment="CENTER">
+            <font>
+                <Font name="Roboto Medium" size="28.0"/>
+            </font>
+        </Text>
+    </children>
+</VBox>

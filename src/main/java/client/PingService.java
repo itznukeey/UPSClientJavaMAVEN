@@ -12,9 +12,9 @@ import lombok.Setter;
  */
 public class PingService implements Runnable {
 
-    private static final Duration MAX_DURATION_BEFORE_ALERT = Duration.ofSeconds(1000);
+    private static final Duration MAX_DURATION_BEFORE_ALERT = Duration.ofSeconds(10);
 
-    private static final Duration PING_PERIOD = Duration.ofSeconds(3);
+    private static final Duration PING_PERIOD = Duration.ofSeconds(5);
 
     private MessageWriter messageWriter;
 

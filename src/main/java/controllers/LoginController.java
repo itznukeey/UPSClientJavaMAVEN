@@ -48,6 +48,15 @@ public class LoginController {
             errorText.setText("Please use shorter username (max " + MAX_USERNAME_LENGTH + ") letters");
         }
 
+        if (loginField.getText().equals("Dealer")) {
+            errorText.setText("Error name \"Dealer\" is forbidden, please select another one");
+        }
+
+        if (loginField.getText().contains(".") || loginField.getText().contains(",")
+                || loginField.getText().contains("{") || loginField.getText().contains("}")) {
+            errorText.setText("Error forbidden symbol, please be sure to only use alphabet or numeric symbols");
+        }
+
         if (!ADDRESS_PATTERN.matcher(addressField.getText()).matches()) {
             errorText.setText("Error, check address format");
             return;
