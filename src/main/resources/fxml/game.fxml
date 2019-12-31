@@ -35,19 +35,20 @@
         </GridPane>
     </center>
     <top>
-        <TilePane alignment="CENTER" prefHeight="55.0" prefWidth="1280.0" stylesheets="@../css/styles.css"
+        <TilePane alignment="CENTER" hgap="10.0" prefHeight="55.0" prefWidth="1280.0" stylesheets="@../css/styles.css"
                   BorderPane.alignment="CENTER">
             <BorderPane.margin>
                 <Insets/>
             </BorderPane.margin>
             <children>
-                <Button fx:id="hitButton" mnemonicParsing="false" text="Hit"/>
-                <Button fx:id="standButton" mnemonicParsing="false" text="Stand">
-                    <padding>
-                        <Insets left="20.0"/>
-                    </padding>
+                <Button fx:id="hitButton" mnemonicParsing="false" text="Hit" TilePane.alignment="TOP_CENTER">
                     <TilePane.margin>
-                        <Insets left="20.0"/>
+                        <Insets/>
+                    </TilePane.margin>
+                </Button>
+                <Button fx:id="standButton" mnemonicParsing="false" text="Stand">
+                    <TilePane.margin>
+                        <Insets/>
                     </TilePane.margin>
                 </Button>
             </children>

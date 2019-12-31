@@ -2,24 +2,60 @@ package client.game.data;
 
 public enum Rank {
 
-    ACE("ace"),
-    TWO("two"),
-    THREE("three"),
-    FOUR("four"),
-    FIVE("five"),
-    SIX("six"),
-    SEVEN("seven"),
-    EIGHT("eight"),
-    NINE("nine"),
-    TEN("ten"),
-    JACK("jack"),
-    QUEEN("queen"),
-    KING("king");
+    ACE,
+    TWO,
+    THREE,
+    FOUR,
+    FIVE,
+    SIX,
+    SEVEN,
+    EIGHT,
+    NINE,
+    TEN,
+    JACK,
+    QUEEN,
+    KING;
 
-    String value;
 
-    Rank(String value) {
-        this.value = value;
+    public static Rank getRank(String string) {
+        switch (string) {
+            case "ace":
+                return ACE;
+
+            case "two":
+                return TWO;
+
+            case "three":
+                return THREE;
+
+            case "four":
+                return FOUR;
+
+            case "five":
+                return FIVE;
+
+            case "six":
+                return SIX;
+
+            case "seven":
+                return SEVEN;
+
+            case "eight":
+                return EIGHT;
+
+            case "nine":
+                return NINE;
+
+            case "ten":
+                return TEN;
+
+            case "jack":
+                return JACK;
+
+            case "queen":
+                return QUEEN;
+        }
+        return KING;
     }
 
     public static String unicodeString(Rank rank) {

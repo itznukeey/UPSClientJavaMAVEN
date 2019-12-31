@@ -1,76 +1,75 @@
+/*.button {*/
 
-.button {
+/*    -fx-background-color: rgb(255, 82, 58);*/
+/*    -fx-text-fill: rgb(227, 227, 227);*/
+/*    -fx-font-size: 15.0;*/
+/*}*/
 
-    -fx-background-color: rgb(255, 82, 58);
-    -fx-text-fill: rgb(227, 227, 227);
-    -fx-font-size: 15.0;
-}
+/*.button:hover {*/
+/*    -fx-background-color: rgb(9, 255, 110);*/
+/*    -fx-text-fill: rgb(9, 9, 9);*/
+/*}*/
 
-.button:hover {
-    -fx-background-color: rgb(9, 255, 110);
-    -fx-text-fill: rgb(9, 9, 9);
-}
+/*.text-field {*/
+/*    -fx-background-color: rgb(23, 25, 24);*/
+/*    -fx-text-fill: #f4fff5;*/
+/*    -fx-prompt-text-fill: #8d908f;*/
+/*}*/
 
-.text-field {
-    -fx-background-color: rgb(23, 25, 24);
-    -fx-text-fill: #f4fff5;
-    -fx-prompt-text-fill: #8d908f;
-}
+/*.anchor-pane {*/
+/*    -fx-background-color: rgb(4, 6, 5);*/
+/*}*/
 
-.anchor-pane {
-    -fx-background-color: rgb(4, 6, 5);
-}
+/*.player-name {*/
+/*    -fx-font-size: 19;*/
+/*    -fx-fill: rgb(255, 82, 58);*/
+/*}*/
 
-.player-name {
-    -fx-font-size: 19;
-    -fx-fill: rgb(255, 82, 58);
-}
+/*.player-details {*/
+/*    -fx-font-size: 19;*/
+/*    -fx-fill: white;*/
+/*}*/
 
-.player-details {
-    -fx-font-size: 19;
-    -fx-fill: white;
-}
-
-.in-game-cards.list-cell:even {
-    -fx-background-color: rgb(4, 6, 5);
-    -fx-text-fill: #f4fff5;
-}
-
-.in-game-cards.list-cell:odd {
-    -fx-background-color: rgb(7, 8, 8);
-    -fx-text-fill: #f4fff5;
-}
-
-.in-game-cards.list-cell {
-    -fx-font-size: 16;
-}
-
-.list-cell:filled:selected:focused, .list-cell:filled:selected {
-    -fx-background-color: rgb(255, 82, 58);
-    -fx-text-fill: white;
-}
-
-.list-cell:even {
-    -fx-background-color: rgb(4, 6, 5);
-    -fx-text-fill: #f4fff5;
-}
-
-.list-cell:odd {
-    -fx-background-color: rgb(7, 8, 8);
-    -fx-text-fill: #f4fff5;
-}
-
-.list-cell:filled:hover {
-    -fx-background-color: #ffb487;
-    -fx-text-fill: white;
-}
-
-.list-cell {
-    -fx-font-size: 15.0;
-}
-
-/*.text-area {*/
-/*    -fx-font-size: 14.0;*/
+/*.in-game-cards.list-cell:even {*/
 /*    -fx-background-color: rgb(4, 6, 5);*/
 /*    -fx-text-fill: #f4fff5;*/
 /*}*/
+
+/*.in-game-cards.list-cell:odd {*/
+/*    -fx-background-color: rgb(7, 8, 8);*/
+/*    -fx-text-fill: #f4fff5;*/
+/*}*/
+
+/*.in-game-cards.list-cell {*/
+/*    -fx-font-size: 16;*/
+/*}*/
+
+/*.list-cell:filled:selected:focused, .list-cell:filled:selected {*/
+/*    -fx-background-color: rgb(255, 82, 58);*/
+/*    -fx-text-fill: white;*/
+/*}*/
+
+/*.list-cell:even {*/
+/*    -fx-background-color: rgb(4, 6, 5);*/
+/*    -fx-text-fill: #f4fff5;*/
+/*}*/
+
+/*.list-cell:odd {*/
+/*    -fx-background-color: rgb(7, 8, 8);*/
+/*    -fx-text-fill: #f4fff5;*/
+/*}*/
+
+/*.list-cell:filled:hover {*/
+/*    -fx-background-color: #ffb487;*/
+/*    -fx-text-fill: white;*/
+/*}*/
+
+/*.list-cell {*/
+/*    -fx-font-size: 15.0;*/
+/*}*/
+
+/*!*.text-area {*!*/
+/*!*    -fx-font-size: 14.0;*!*/
+/*!*    -fx-background-color: rgb(4, 6, 5);*!*/
+/*!*    -fx-text-fill: #f4fff5;*!*/
+/*!*}*!*/

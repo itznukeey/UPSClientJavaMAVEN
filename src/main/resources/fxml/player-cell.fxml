@@ -15,11 +15,11 @@
                 <Font name="Roboto Medium" size="28.0"/>
             </font>
         </Text>
-        <ListView fx:id="cardList" prefHeight="302.0" prefWidth="200.0"/>
+        <ListView fx:id="cardList" prefHeight="193.0" prefWidth="200.0"/>
         <Text fx:id="totalScore" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="player-details" text="Total"
               textAlignment="CENTER">
             <font>
-                <Font name="Roboto Medium" size="28.0"/>
+                <Font name="Roboto Medium" size="17.0"/>
             </font>
         </Text>
         <Text fx:id="gameResult" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="player-details"

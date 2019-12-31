@@ -1,13 +1,25 @@
 package client.game.data;
 
 public enum Suit {
-    CLUBS("C"),
-    DIAMONDS("D"),
-    SPADES("S"),
-    HEARTS("H");
+    CLUBS,
+    DIAMONDS,
+    SPADES,
+    HEARTS;
 
 
-    Suit(String string) {
+    public static Suit getSuit(String string) {
+        switch (string) {
+            case "S":
+                return SPADES;
+
+            case "D":
+                return DIAMONDS;
+
+            case "H":
+                return HEARTS;
+        }
+
+        return CLUBS;
     }
 
     public static String unicodeString(Suit suit) {

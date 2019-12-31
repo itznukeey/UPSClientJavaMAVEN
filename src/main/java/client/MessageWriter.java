@@ -46,7 +46,7 @@ public class MessageWriter {
 
     public void sendVoteStartRequest() {
         var message = new TCPData(DataType.REQUEST);
-        message.add(Fields.REQUEST, Values.VOTE_START);
+        message.add(Fields.REQUEST, Values.SEND_READY);
         sendMessage(message.serialize());
     }
 

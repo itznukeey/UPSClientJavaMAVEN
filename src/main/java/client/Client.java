@@ -11,7 +11,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,6 +19,7 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
+import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
 
@@ -168,16 +168,12 @@ public class Client {
             messageReader.closeThread();
             pingService.closeThread();
 
-            Platform.runLater(this::prepareLoginAfterDC);
+            prepareLoginAfterDC();
 
         } catch (IOException e) {
             System.err.println("Error while attempting to close socket");
         }
 
-    }
-
-    public void showUsernameNotUnique() {
-        loginController.showUsernameNotUnique();
     }
 
     public void prepareLobbyScene(List<String> users) {
@@ -219,7 +215,9 @@ public class Client {
     }
 
     public void restoreState(TCPData message) {
-
+        if (message.valueOf(Fields.IN_GAME).equals(Values.FALSE)) {
+            prepareLobbyListScene();
+        }
     }
 
     public void updatePlayerList(TCPData message) {
@@ -289,5 +287,32 @@ public class Client {
 
     public void showPlayerTurn(TCPData message) {
         gameController.showTurn(message);
+    }
+
+    public void playerTurn() {
+        gameController.setCanPlay(true);
+        var alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Your turn");
+        alert.setHeaderText("You have 60s to make your move");
+        alert.setContentText("After 60s your move will be automatically taken as stand");
+        alert.show();
+    }
+
+    public void showReconnectedFromSomewhereElse() {
+        prepareLoginAfterDC();
+        var alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Disconnected from the server");
+        alert.setHeaderText("You have been disconnected from the server");
+        alert.setContentText("Someone else logged under your username");
+        alert.show();
+    }
+
+    public void showRemovedFromLobby() {
+        prepareLoginAfterDC();
+        var alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Removed from lobby");
+        alert.setHeaderText("You have been removed from the lobby");
+        alert.setContentText("Game you attempt to reconnect to has finished");
+        alert.show();
     }
 }

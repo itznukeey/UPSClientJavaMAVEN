@@ -22,6 +22,8 @@ import serialization.Values;
 
 public class GameController {
 
+    private static final String DEALER = "dealer";
+
     @FXML
     private GridPane gridPane;
 
@@ -33,6 +35,9 @@ public class GameController {
 
     @FXML
     private Button standButton;
+
+    @Setter
+    private Boolean canPlay = false;
 
     @Setter
     private Client client;
@@ -59,25 +64,35 @@ public class GameController {
             var cards = getCards(message, playerNo);
             playerCellController.setCardList(cards);
             playerCellController.setTotalScore(message.valueOf(Fields.PLAYER + playerNo + Fields.TOTAL_VALUE));
-            playerCellMap.put(playerCellController.getUsername().getText(), playerCellController);
+            playerCellMap.put(Fields.PLAYER + playerNo, playerCellController);
             gridPane.addColumn(playerNo, playerCell);
         }
 
         var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/player-cell.fxml"));
         Parent dealerCell = fxmlLoader.load();
         var dealerCellController = fxmlLoader.<PlayerCellController>getController();
-        dealerCellController.setUsername("Dealer");
+        dealerCellController.setUsername(DEALER);
         var cards = getDealerCards(message);
         dealerCellController.setCardList(cards);
         gridPane.addColumn(playerCount, dealerCell);
-        playerCellMap.put("Dealer", dealerCellController);
+        playerCellMap.put(DEALER, dealerCellController);
 
         setButtonFunctions();
     }
 
     private void setButtonFunctions() {
-        hitButton.setOnAction(actionEvent -> client.getMessageWriter().sendHit());
-        standButton.setOnAction(actionEvent -> client.getMessageWriter().sendStand());
+        hitButton.setOnAction(actionEvent -> {
+            if (canPlay) {
+                client.getMessageWriter().sendHit();
+                setCanPlay(false);
+            }
+        });
+        standButton.setOnAction(actionEvent -> {
+            if (canPlay) {
+                client.getMessageWriter().sendStand();
+                setCanPlay(false);
+            }
+        });
     }
 
     private List<Card> getCards(TCPData message, int i) {
@@ -90,7 +105,7 @@ public class GameController {
             }
 
             String[] cardProperties = card.split(";");
-            cards.add(new Card(Suit.valueOf(cardProperties[0]), Rank.valueOf(cardProperties[1]), true));
+            cards.add(new Card(Suit.getSuit(cardProperties[0]), Rank.getRank(cardProperties[1]), true));
             cardNo++;
         }
         return cards;
@@ -100,7 +115,7 @@ public class GameController {
         var cards = new ArrayList<Card>();
         var hiddenCard = message.valueOf(Fields.DEALER + Fields.CARD + 0);
         String[] cardProperties = hiddenCard.split(";");
-        cards.add(new Card(Suit.valueOf(cardProperties[0]), Rank.valueOf(cardProperties[1]), false));
+        cards.add(new Card(Suit.getSuit(cardProperties[0]), Rank.getRank(cardProperties[1]), false));
 
         var cardNo = 1;
         while (true) {
@@ -110,7 +125,7 @@ public class GameController {
             }
 
             cardProperties = card.split(";");
-            cards.add(new Card(Suit.valueOf(cardProperties[0]), Rank.valueOf(cardProperties[1]), true));
+            cards.add(new Card(Suit.getSuit(cardProperties[0]), Rank.getRank(cardProperties[1]), true));
             cardNo++;
         }
         return cards;
@@ -118,23 +133,23 @@ public class GameController {
 
     public void updateData(TCPData message) {
         for (var playerNo = 0; playerNo < playerCount; playerNo++) {
-            var controller = playerCellMap.get(message.valueOf(Fields.PLAYER + playerNo));
+            var controller = playerCellMap.get(Fields.PLAYER + playerNo);
             var cards = getCards(message, playerNo);
             controller.setCardList(cards);
             controller.setTotalScore(message.valueOf(Fields.PLAYER + playerNo + Fields.TOTAL_VALUE));
         }
 
-        var dealerController = playerCellMap.get(message.valueOf("Dealer"));
+        var dealerController = playerCellMap.get(DEALER);
         var cards = getDealerCards(message);
         dealerController.setCardList(cards);
     }
 
     public void showResults(TCPData message) {
         for (var playerNo = 0; playerNo < playerCount; playerNo++) {
-            var controller = playerCellMap.get(message.valueOf(Fields.PLAYER + playerNo));
+            var controller = playerCellMap.get(Fields.PLAYER + playerNo);
             controller.setGameResult(message.valueOf(Fields.PLAYER + playerNo));
         }
-        var dealerController = playerCellMap.get("Dealer");
+        var dealerController = playerCellMap.get(DEALER);
         var cards = new ArrayList<>(dealerController.getCardList().getItems());
 
         cards.forEach(card -> card.setShow(true));
@@ -148,8 +163,9 @@ public class GameController {
             appendText("Player " + player + " stood.");
         } else {
             String[] cardProperties = message.valueOf(Fields.CARD).split(";");
-            var card = new Card(Suit.valueOf(cardProperties[0]), Rank.valueOf(cardProperties[1]), true);
+            var card = new Card(Suit.getSuit(cardProperties[0]), Rank.getRank(cardProperties[1]), true);
             appendText("Player " + player + " hit and got " + card.toString());
         }
     }
+
 }

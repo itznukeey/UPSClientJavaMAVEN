@@ -8,7 +8,8 @@ public class Values {
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     public static final String LOGIN = "login";
-    public static final String VOTE_START = "voteStart";
+    public static final String CONNECTION_CLOSED = "connectionClosed";
+    public static final String SEND_READY = "sendReady";
     public static final String UPDATE_PLAYER_LIST = "updatePlayerList";
     public static final String LEAVE_LOBBY = "leaveLobby";
     public static final String SHOW_PLAYER_DISCONNECTED = "showPlayerDisconnected";
@@ -18,7 +19,6 @@ public class Values {
     public static final String SHOW_GAME_START_FAILED = "showGameStartFailed";
     public static final String UPDATE_BOARD = "updateBoard";
     public static final String TOTAL_VALUE = "totalValue";
-    public static final String PLAYER_HAND = "playUerHand";
     public static final String HIT = "hit";
     public static final String STAND = "stand";
     public static final String TURN_TYPE = "turnType";
@@ -27,4 +27,5 @@ public class Values {
     public static final String SHOW_LOBBY = "showLobby";
     public static final String SHOW_PLAYER_TURN = "showPlayerTurn";
     public static final String SHOW_RESULTS = "showResults";
+    public static final String REMOVED_FROM_LOBBY = "removedFromLobby";
 }

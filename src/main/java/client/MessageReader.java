@@ -81,6 +81,10 @@ public class MessageReader implements Runnable {
 
         if (request.equals(Values.UPDATE_PLAYER_LIST)) {
             Platform.runLater(() -> client.updatePlayerList(message));
+        } else if (request.equals(Values.CONNECTION_CLOSED)) {
+            Platform.runLater(client::showReconnectedFromSomewhereElse);
+        } else if (request.equals(Values.REMOVED_FROM_LOBBY)) {
+            Platform.runLater(client::showRemovedFromLobby);
         } else if (request.equals(Values.SHOW_PLAYER_CONNECTED)) {
             Platform.runLater(() -> client.showPlayerConnected(message));
         } else if (request.equals(Values.SHOW_PLAYER_DISCONNECTED)) {
@@ -100,6 +104,8 @@ public class MessageReader implements Runnable {
             });
         } else if (request.equals(Values.SHOW_PLAYER_TURN)) {
             Platform.runLater(() -> client.showPlayerTurn(message));
+        } else if (request.equals(Values.TURN)) {
+            Platform.runLater(client::playerTurn);
         }
     }
 
@@ -116,7 +122,6 @@ public class MessageReader implements Runnable {
             }
         } else if (response.equals(Values.LOBBY_LIST)) {
             var lobbyList = parseLobbyList(message);
-            //Aktualizuje list, který předtím ještě seřadí podle id
             client.updateLobbyList(
                     lobbyList.stream().sorted(Comparator.comparingInt(Lobby::getId)).collect(Collectors.toList()));
         } else if (response.equals(Values.JOIN_LOBBY)) {
@@ -127,8 +132,6 @@ public class MessageReader implements Runnable {
                 Platform.runLater(client::showLobbyNotJoinable);
             }
         }
-
-
     }
 
     private ArrayList<Lobby> parseLobbyList(TCPData message) {
