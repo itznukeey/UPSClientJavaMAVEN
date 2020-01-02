@@ -11,11 +11,13 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,6 +39,7 @@ public class Client {
     @Setter
     private State state;
 
+    @Getter
     @Setter
     private String username;
 
@@ -129,7 +132,7 @@ public class Client {
             loginController.setClient(this);
 
             stage.setScene(new Scene(loginRoot));
-            stage.setResizable(false);
+            stage.setResizable(true);
             stage.show();
 
             state = State.AUTHENTICATION;
@@ -168,6 +171,7 @@ public class Client {
             messageReader.closeThread();
             pingService.closeThread();
 
+            state = State.AUTHENTICATION;
             prepareLoginAfterDC();
 
         } catch (IOException e) {
@@ -226,8 +230,10 @@ public class Client {
     }
 
     public void showPlayerConnected(TCPData message) {
-        lobbyController.showPlayerConnected(message.valueOf(Values.USERNAME));
-        messageWriter.sendShownPlayerConnected();
+        if (state == State.LOBBY) {
+            lobbyController.showPlayerConnected(message.valueOf(Values.USERNAME));
+            messageWriter.sendShownPlayerConnected();
+        }
     }
 
     public void showPlayerDisconnected(TCPData message) {
@@ -236,15 +242,20 @@ public class Client {
     }
 
     public void confirmParticipation() {
-        var alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Game will start soon");
-        alert.setHeaderText("Confirm your participation");
-        alert.setContentText("Press OK to confirm participation, otherwise you will be removed from the lobby");
-        var result = alert.showAndWait();
+        var dialog = new TextInputDialog("200");
+        var validationButton = dialog.getDialogPane().lookupButton(ButtonType.OK);
+        var input = dialog.getEditor().getText();
+        validationButton.addEventFilter(ActionEvent.ACTION, filter -> {
+            if (!input.matches("\\d+") || Integer.parseInt(input) > 10000) {
+                filter.consume();
+            }
+        });
 
-        if (result.get() == ButtonType.OK) {
-            messageWriter.sendConfirmParticipation();
-        }
+        dialog.setTitle("Game will start soon");
+        dialog.setHeaderText("Confirm your participation, place a bet (minimum 100, maximum 10k)");
+        dialog.setContentText("Press OK to confirm your bet");
+        dialog.showAndWait().ifPresent(action -> messageWriter.sendConfirmParticipation(dialog.getEditor().getText()));
+
     }
 
     public void showGameStartFailed() {
@@ -313,6 +324,30 @@ public class Client {
         alert.setTitle("Removed from lobby");
         alert.setHeaderText("You have been removed from the lobby");
         alert.setContentText("Game you attempt to reconnect to has finished");
+        alert.show();
+    }
+
+    public void showNotYourTurnDialog() {
+        var alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Not your turn!");
+        alert.setHeaderText("Wait for your turn");
+        alert.setContentText("It is not your turn to play yet");
+        alert.show();
+    }
+
+    public void showDoubleDownAfterHit() {
+        var alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Attempting to double down after having already hit");
+        alert.setHeaderText("You cannot double down after hitting");
+        alert.setContentText("You can only double down in your first turn");
+        alert.show();
+    }
+
+    public void showGameCouldNotStart() {
+        var alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Game could not start");
+        alert.setHeaderText("Not enough players confirmed");
+        alert.setContentText("At least two or more players need to confirm with initial bet for game to launch");
         alert.show();
     }
 }

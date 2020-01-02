@@ -27,6 +27,14 @@ public class PlayerCellController {
     @Getter
     private Text gameResult;
 
+    @FXML
+    @Getter
+    private Text betToGained;
+
+    @FXML
+    @Getter
+    private Text betResult;
+
     public void setUsername(String username) {
         this.username.setText(username);
     }

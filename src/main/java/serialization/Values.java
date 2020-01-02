@@ -28,4 +28,6 @@ public class Values {
     public static final String SHOW_PLAYER_TURN = "showPlayerTurn";
     public static final String SHOW_RESULTS = "showResults";
     public static final String REMOVED_FROM_LOBBY = "removedFromLobby";
+    public static final String DOUBLE_DOWN = "doubleDown";
+    public static final String DOUBLE_AFTER_HIT = "doubleAfterHit";
 }

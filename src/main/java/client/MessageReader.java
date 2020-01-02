@@ -31,9 +31,6 @@ public class MessageReader implements Runnable {
         close = true;
     }
 
-    /**
-     * Běh vlákna
-     */
     @Override
     public void run() {
 
@@ -79,58 +76,95 @@ public class MessageReader implements Runnable {
     private void processRequest(TCPData message) {
         var request = message.valueOf(Fields.REQUEST);
 
-        if (request.equals(Values.UPDATE_PLAYER_LIST)) {
-            Platform.runLater(() -> client.updatePlayerList(message));
-        } else if (request.equals(Values.CONNECTION_CLOSED)) {
-            Platform.runLater(client::showReconnectedFromSomewhereElse);
-        } else if (request.equals(Values.REMOVED_FROM_LOBBY)) {
-            Platform.runLater(client::showRemovedFromLobby);
-        } else if (request.equals(Values.SHOW_PLAYER_CONNECTED)) {
-            Platform.runLater(() -> client.showPlayerConnected(message));
-        } else if (request.equals(Values.SHOW_PLAYER_DISCONNECTED)) {
-            Platform.runLater(() -> client.showPlayerDisconnected(message));
-        } else if (request.equals(Values.CONFIRM_PARTICIPATION)) {
-            Platform.runLater(client::confirmParticipation);
-        } else if (request.equals(Values.SHOW_GAME_START_FAILED)) {
-            Platform.runLater(client::showGameStartFailed);
-        } else if (request.equals(Values.UPDATE_BOARD)) {
-            Platform.runLater(() -> client.updateBoard(message));
-        } else if (request.equals(Values.SHOW_RESULTS)) {
-            Platform.runLater(() -> client.showResults(message));
-        } else if (request.equals(Values.JOIN_LOBBY)) {
-            Platform.runLater(() -> {
-                client.setLobbyId(Integer.parseInt(message.valueOf(Fields.LOBBY_ID)));
-                Platform.runLater(() -> client.prepareLobbyScene(client.parseUsernames(message)));
-            });
-        } else if (request.equals(Values.SHOW_PLAYER_TURN)) {
-            Platform.runLater(() -> client.showPlayerTurn(message));
-        } else if (request.equals(Values.TURN)) {
-            Platform.runLater(client::playerTurn);
+        switch (request) {
+            case Values.UPDATE_PLAYER_LIST:
+                Platform.runLater(() -> client.updatePlayerList(message));
+                break;
+
+            case Values.CONNECTION_CLOSED:
+                Platform.runLater(client::showReconnectedFromSomewhereElse);
+                break;
+
+            case Values.REMOVED_FROM_LOBBY:
+                Platform.runLater(client::showRemovedFromLobby);
+                break;
+
+            case Values.SHOW_PLAYER_CONNECTED:
+                Platform.runLater(() -> client.showPlayerConnected(message));
+                break;
+
+            case Values.SHOW_PLAYER_DISCONNECTED:
+                Platform.runLater(() -> client.showPlayerDisconnected(message));
+                break;
+
+            case Values.CONFIRM_PARTICIPATION:
+                Platform.runLater(client::confirmParticipation);
+                break;
+
+            case Values.SHOW_GAME_START_FAILED:
+                Platform.runLater(client::showGameStartFailed);
+                break;
+
+            case Values.UPDATE_BOARD:
+                Platform.runLater(() -> client.updateBoard(message));
+                break;
+
+            case Values.SHOW_RESULTS:
+                Platform.runLater(() -> client.showResults(message));
+                break;
+
+            case Values.JOIN_LOBBY:
+                Platform.runLater(() -> {
+                    client.setLobbyId(Integer.parseInt(message.valueOf(Fields.LOBBY_ID)));
+                    Platform.runLater(() -> client.prepareLobbyScene(client.parseUsernames(message)));
+                });
+                break;
+
+            case Values.SHOW_PLAYER_TURN:
+                Platform.runLater(() -> client.showPlayerTurn(message));
+                break;
+
+            case Values.TURN:
+                Platform.runLater(client::playerTurn);
+                break;
         }
     }
 
     private void processResponse(TCPData message) {
         var response = message.valueOf(Fields.RESPONSE);
 
-        if (response.equals(Values.LOGIN)) {
-            pingService.setSendPingMessages(true);
+        switch (response) {
+            case Values.LOGIN:
+                pingService.setSendPingMessages(true);
+                if (message.valueOf(Fields.IS_NEW).equals(Values.TRUE)) {
+                    Platform.runLater(client::prepareLobbyListScene);
+                } else {
+                    Platform.runLater(() -> client.restoreState(message));
+                }
+                break;
 
-            if (message.valueOf(Fields.IS_NEW).equals(Values.TRUE)) {
-                Platform.runLater(client::prepareLobbyListScene);
-            } else {
-                Platform.runLater(() -> client.restoreState(message));
-            }
-        } else if (response.equals(Values.LOBBY_LIST)) {
-            var lobbyList = parseLobbyList(message);
-            client.updateLobbyList(
-                    lobbyList.stream().sorted(Comparator.comparingInt(Lobby::getId)).collect(Collectors.toList()));
-        } else if (response.equals(Values.JOIN_LOBBY)) {
-            if (message.valueOf(Fields.IS_JOINABLE).equals(Values.TRUE)) {
-                client.setLobbyId(Integer.parseInt(message.valueOf(Fields.LOBBY_ID)));
-                Platform.runLater(() -> client.prepareLobbyScene(client.parseUsernames(message)));
-            } else {
-                Platform.runLater(client::showLobbyNotJoinable);
-            }
+            case Values.LOBBY_LIST:
+                var lobbyList = parseLobbyList(message);
+                client.updateLobbyList(
+                        lobbyList.stream().sorted(Comparator.comparingInt(Lobby::getId)).collect(Collectors.toList()));
+                break;
+
+            case Values.JOIN_LOBBY:
+                if (message.valueOf(Fields.IS_JOINABLE).equals(Values.TRUE)) {
+                    client.setLobbyId(Integer.parseInt(message.valueOf(Fields.LOBBY_ID)));
+                    Platform.runLater(() -> client.prepareLobbyScene(client.parseUsernames(message)));
+                } else {
+                    Platform.runLater(client::showLobbyNotJoinable);
+                }
+                break;
+
+            case Values.NOT_YOUR_TURN:
+                Platform.runLater(client::showNotYourTurnDialog);
+                break;
+
+            case Values.DOUBLE_AFTER_HIT:
+                Platform.runLater(client::showDoubleDownAfterHit);
+                break;
         }
     }
 

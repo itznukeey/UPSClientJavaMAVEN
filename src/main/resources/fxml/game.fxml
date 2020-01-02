@@ -41,12 +41,15 @@
                 <Insets/>
             </BorderPane.margin>
             <children>
-                <Button fx:id="hitButton" mnemonicParsing="false" text="Hit" TilePane.alignment="TOP_CENTER">
+                <Button fx:id="hitButton" mnemonicParsing="false" stylesheets="@../css/styles.css" text="Hit"
+                        TilePane.alignment="TOP_CENTER">
                     <TilePane.margin>
                         <Insets/>
                     </TilePane.margin>
                 </Button>
-                <Button fx:id="standButton" mnemonicParsing="false" text="Stand">
+                <Button fx:id="doubleDownButton" mnemonicParsing="false" stylesheets="@../css/styles.css"
+                        text="Double Down"/>
+                <Button fx:id="standButton" mnemonicParsing="false" stylesheets="@../css/styles.css" text="Stand">
                     <TilePane.margin>
                         <Insets/>
                     </TilePane.margin>

@@ -18,4 +18,5 @@ public class Fields {
     public static final String DEALER = "D";
     public static final String TOTAL_VALUE = "totalValue";
     public static final String TURN_TYPE = "turnType";
+    public static final String BET = "bet";
 }

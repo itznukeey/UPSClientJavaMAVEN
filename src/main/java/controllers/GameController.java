@@ -36,6 +36,9 @@ public class GameController {
     @FXML
     private Button standButton;
 
+    @FXML
+    private Button doubleDownButton;
+
     @Setter
     private Boolean canPlay = false;
 
@@ -46,8 +49,7 @@ public class GameController {
 
     private Integer playerCount;
 
-
-    private void appendText(String text) {
+    public void showMessage(String text) {
         textArea.appendText(text + "\n");
     }
 
@@ -59,11 +61,19 @@ public class GameController {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/player-cell.fxml"));
             Parent playerCell = fxmlLoader.load();
             var playerCellController = fxmlLoader.<PlayerCellController>getController();
-            playerCellController.setUsername(message.valueOf(Fields.PLAYER + playerNo));
+            var username = message.valueOf(Fields.PLAYER + playerNo);
+            var bet = message.valueOf(Fields.PLAYER + playerNo + Fields.BET);
+
+            if (username.equals(client.getUsername())) {
+                username += " (YOU)";
+            }
+
+            playerCellController.setUsername(username);
 
             var cards = getCards(message, playerNo);
             playerCellController.setCardList(cards);
             playerCellController.setTotalScore(message.valueOf(Fields.PLAYER + playerNo + Fields.TOTAL_VALUE));
+            playerCellController.getBetResult().setText(bet + " : " + "???");
             playerCellMap.put(Fields.PLAYER + playerNo, playerCellController);
             gridPane.addColumn(playerNo, playerCell);
         }
@@ -74,6 +84,8 @@ public class GameController {
         dealerCellController.setUsername(DEALER);
         var cards = getDealerCards(message);
         dealerCellController.setCardList(cards);
+        dealerCellController.getBetToGained().setText("");
+
         gridPane.addColumn(playerCount, dealerCell);
         playerCellMap.put(DEALER, dealerCellController);
 
@@ -90,6 +102,12 @@ public class GameController {
         standButton.setOnAction(actionEvent -> {
             if (canPlay) {
                 client.getMessageWriter().sendStand();
+                setCanPlay(false);
+            }
+        });
+        doubleDownButton.setOnAction(actionEvent -> {
+            if (canPlay) {
+                client.getMessageWriter().sendDoubleDown();
                 setCanPlay(false);
             }
         });
@@ -135,7 +153,9 @@ public class GameController {
         for (var playerNo = 0; playerNo < playerCount; playerNo++) {
             var controller = playerCellMap.get(Fields.PLAYER + playerNo);
             var cards = getCards(message, playerNo);
+            var bet = message.valueOf(Fields.PLAYER + playerNo + Fields.BET);
             controller.setCardList(cards);
+            controller.getBetResult().setText(bet + " : " + "???");
             controller.setTotalScore(message.valueOf(Fields.PLAYER + playerNo + Fields.TOTAL_VALUE));
         }
 
@@ -147,7 +167,9 @@ public class GameController {
     public void showResults(TCPData message) {
         for (var playerNo = 0; playerNo < playerCount; playerNo++) {
             var controller = playerCellMap.get(Fields.PLAYER + playerNo);
+            var betResult = message.valueOf(Fields.PLAYER + playerNo + Fields.BET);
             controller.setGameResult(message.valueOf(Fields.PLAYER + playerNo));
+            controller.getBetResult().setText(betResult);
         }
         var dealerController = playerCellMap.get(DEALER);
         var cards = new ArrayList<>(dealerController.getCardList().getItems());
@@ -160,12 +182,11 @@ public class GameController {
     public void showTurn(TCPData message) {
         var player = message.valueOf(Fields.USERNAME);
         if (message.valueOf(Fields.TURN_TYPE).equals(Values.STAND)) {
-            appendText("Player " + player + " stood.");
+            showMessage("Player " + player + " stood.");
         } else {
             String[] cardProperties = message.valueOf(Fields.CARD).split(";");
             var card = new Card(Suit.getSuit(cardProperties[0]), Rank.getRank(cardProperties[1]), true);
-            appendText("Player " + player + " hit and got " + card.toString());
+            showMessage("Player " + player + " hit and got " + card.toString());
         }
     }
-
 }

@@ -5,7 +5,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="vBox" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"
-      minHeight="-Infinity" minWidth="-Infinity" prefHeight="520.0" prefWidth="200.0" styleClass="anchor-pane"
+      minHeight="-Infinity" minWidth="-Infinity" prefHeight="415.0" prefWidth="200.0" styleClass="anchor-pane"
       stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/11.0.1"
       fx:controller="controllers.PlayerCellController">
     <children>
@@ -15,8 +15,8 @@
                 <Font name="Roboto Medium" size="28.0"/>
             </font>
         </Text>
-        <ListView fx:id="cardList" prefHeight="193.0" prefWidth="200.0"/>
-        <Text fx:id="totalScore" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="player-details" text="Total"
+        <ListView fx:id="cardList" prefHeight="152.0" prefWidth="200.0"/>
+        <Text fx:id="totalScore" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="player-details" text="Score"
               textAlignment="CENTER">
             <font>
                 <Font name="Roboto Medium" size="17.0"/>
@@ -26,6 +26,18 @@
               textAlignment="CENTER">
             <font>
                 <Font name="Roboto Medium" size="28.0"/>
+            </font>
+        </Text>
+        <Text fx:id="betToGained" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="player-details" text="Bet : Gained"
+              textAlignment="CENTER">
+            <font>
+                <Font name="Roboto Medium" size="17.0"/>
+            </font>
+        </Text>
+        <Text fx:id="betResult" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="player-details"
+              textAlignment="CENTER">
+            <font>
+                <Font name="Roboto Medium" size="17.0"/>
             </font>
         </Text>
     </children>

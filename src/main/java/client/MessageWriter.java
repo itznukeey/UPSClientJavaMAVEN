@@ -75,8 +75,9 @@ public class MessageWriter {
         sendMessage(message.serialize());
     }
 
-    public void sendConfirmParticipation() {
+    public void sendConfirmParticipation(String bet) {
         var message = new TCPData(DataType.RESPONSE);
+        message.add(Fields.BET, bet);
         message.add(Fields.RESPONSE, Values.CONFIRM_PARTICIPATION);
         sendMessage(message.serialize());
     }
@@ -92,6 +93,13 @@ public class MessageWriter {
         var message = new TCPData(DataType.RESPONSE);
         message.add(Fields.RESPONSE, Values.TURN);
         message.add(Fields.TURN_TYPE, Values.STAND);
+        sendMessage(message.serialize());
+    }
+
+    public void sendDoubleDown() {
+        var message = new TCPData(DataType.RESPONSE);
+        message.add(Fields.RESPONSE, Values.TURN);
+        message.add(Fields.TURN_TYPE, Values.DOUBLE_DOWN);
         sendMessage(message.serialize());
     }
 }
