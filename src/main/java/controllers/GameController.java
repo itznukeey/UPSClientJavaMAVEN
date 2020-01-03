@@ -61,19 +61,23 @@ public class GameController {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/player-cell.fxml"));
             Parent playerCell = fxmlLoader.load();
             var playerCellController = fxmlLoader.<PlayerCellController>getController();
+
             var username = message.valueOf(Fields.PLAYER + playerNo);
             var bet = message.valueOf(Fields.PLAYER + playerNo + Fields.BET);
 
+            playerCellController.getBetResult().setText(bet + " : " + "???");
             if (username.equals(client.getUsername())) {
                 username += " (YOU)";
             }
-
             playerCellController.setUsername(username);
 
             var cards = getCards(message, playerNo);
             playerCellController.setCardList(cards);
-            playerCellController.setTotalScore(message.valueOf(Fields.PLAYER + playerNo + Fields.TOTAL_VALUE));
-            playerCellController.getBetResult().setText(bet + " : " + "???");
+
+            var totalScore = message.valueOf(Fields.PLAYER + playerNo + Fields.TOTAL_VALUE);
+            String[] hardLightHands = totalScore.split(";");
+            playerCellController.setTotalScore(hardLightHands[0] + " : " + hardLightHands[1]);
+
             playerCellMap.put(Fields.PLAYER + playerNo, playerCellController);
             gridPane.addColumn(playerNo, playerCell);
         }
@@ -156,7 +160,10 @@ public class GameController {
             var bet = message.valueOf(Fields.PLAYER + playerNo + Fields.BET);
             controller.setCardList(cards);
             controller.getBetResult().setText(bet + " : " + "???");
-            controller.setTotalScore(message.valueOf(Fields.PLAYER + playerNo + Fields.TOTAL_VALUE));
+
+            var totalScore = message.valueOf(Fields.PLAYER + playerNo + Fields.TOTAL_VALUE);
+            String[] hardLightHands = totalScore.split(";");
+            controller.setTotalScore(hardLightHands[0] + " : " + hardLightHands[1]);
         }
 
         var dealerController = playerCellMap.get(DEALER);
@@ -167,26 +174,51 @@ public class GameController {
     public void showResults(TCPData message) {
         for (var playerNo = 0; playerNo < playerCount; playerNo++) {
             var controller = playerCellMap.get(Fields.PLAYER + playerNo);
-            var betResult = message.valueOf(Fields.PLAYER + playerNo + Fields.BET);
-            controller.setGameResult(message.valueOf(Fields.PLAYER + playerNo));
-            controller.getBetResult().setText(betResult);
+
+            var betToGained = message.valueOf(Fields.PLAYER + playerNo + Fields.BET);
+            String[] bets = betToGained.split(";");
+            controller.getBetResult().setText(bets[0] + " : " + bets[1]);
+            controller.setGameResult(message.valueOf(Fields.PLAYER + playerNo).toUpperCase());
         }
         var dealerController = playerCellMap.get(DEALER);
         var cards = new ArrayList<>(dealerController.getCardList().getItems());
 
         cards.forEach(card -> card.setShow(true));
         dealerController.setCardList(cards);
-        dealerController.setTotalScore(message.valueOf(Fields.TOTAL_VALUE));
+
+        var totalScore = message.valueOf(Fields.TOTAL_VALUE);
+        String[] hardLightHands = totalScore.split(";");
+        dealerController.setTotalScore(hardLightHands[0] + " : " + hardLightHands[1]);
     }
 
     public void showTurn(TCPData message) {
         var player = message.valueOf(Fields.USERNAME);
-        if (message.valueOf(Fields.TURN_TYPE).equals(Values.STAND)) {
-            showMessage("Player " + player + " stood.");
-        } else {
-            String[] cardProperties = message.valueOf(Fields.CARD).split(";");
-            var card = new Card(Suit.getSuit(cardProperties[0]), Rank.getRank(cardProperties[1]), true);
-            showMessage("Player " + player + " hit and got " + card.toString());
+        switch (message.valueOf(Fields.TURN_TYPE)) {
+            case Values.STAND:
+                showMessage("Player " + player + " stood");
+                return;
+            case Values.HIT: {
+                String[] cardProperties = message.valueOf(Fields.CARD).split(";");
+                var card = new Card(Suit.getSuit(cardProperties[0]), Rank.getRank(cardProperties[1]), true);
+                var isBusted = message.valueOf(Fields.RESULT).equals(Values.BUSTED);
+
+                showMessage(isBusted ?
+                        "Player " + player + " hit, got " + card.toString() + " and is busted"
+                        : "Player" + player + " hit and got " + card.toString());
+                break;
+            }
+            case Values.DOUBLE_DOWN: {
+                String[] cardProperties = message.valueOf(Fields.CARD).split(";");
+                var card = new Card(Suit.getSuit(cardProperties[0]), Rank.getRank(cardProperties[1]), true);
+                var isBusted = message.valueOf(Fields.RESULT).equals(Values.BUSTED);
+
+                showMessage(isBusted ?
+                        "Player " + player + " doubled down, got " + card.toString() + " and is busted"
+                        : "Player " + player + " doubled down and got " + card.toString());
+
+                break;
+            }
         }
+
     }
 }

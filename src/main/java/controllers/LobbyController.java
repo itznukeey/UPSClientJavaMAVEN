@@ -32,8 +32,8 @@ public class LobbyController {
     }
 
     @FXML
-    private void voteStart() {
-        client.getMessageWriter().sendVoteStartRequest();
+    private void sendready() {
+        client.getMessageWriter().sendReady();
     }
 
     public void updateUsersList(List<String> users) {

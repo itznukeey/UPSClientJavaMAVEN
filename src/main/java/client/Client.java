@@ -304,8 +304,8 @@ public class Client {
         gameController.setCanPlay(true);
         var alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Your turn");
-        alert.setHeaderText("You have 60s to make your move");
-        alert.setContentText("After 60s your move will be automatically taken as stand");
+        alert.setHeaderText("You have 60s to make your next turn");
+        alert.setContentText("After 60s has expired your turn will be considered as STAND");
         alert.show();
     }
 
@@ -349,5 +349,10 @@ public class Client {
         alert.setHeaderText("Not enough players confirmed");
         alert.setContentText("At least two or more players need to confirm with initial bet for game to launch");
         alert.show();
+    }
+
+    public void showReturnToLobby(TCPData message) {
+        var timeSeconds = message.valueOf(Fields.TIME);
+        gameController.showMessage("Game has finished, you will be returned to lobby in " + timeSeconds + " seconds");
     }
 }

@@ -68,10 +68,11 @@ public class TCPData {
         }
 
         try {
-            message = message.replace("{", "").replace("}","");
+            System.out.println(message);
+            message = message.replace("{", "").replace("}", "");
 
-            String[] doubleColonSplit = message.split(",");
-            Arrays.stream(doubleColonSplit).forEach(e -> {
+            String[] commaSplit = message.split(",");
+            Arrays.stream(commaSplit).forEach(e -> {
                 String[] field = e.split(":");
                 fields.put(field[0], field[1]);
             });
@@ -81,6 +82,7 @@ public class TCPData {
         }
 
         catch (Exception ex) {
+            ex.printStackTrace();
             throw new IllegalStateException("Error, incorrect message format");
         }
 

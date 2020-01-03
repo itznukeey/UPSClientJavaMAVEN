@@ -40,7 +40,6 @@ public class MessageReader implements Runnable {
                 if (message != null) {
                     pingService.setLastResponseReceived(LocalDateTime.now());
                     parse(message);
-                    System.out.println(message);
                 }
             } catch (IOException ex) {
                 System.err.println("Incorrect data received, disconnecting");
@@ -77,6 +76,7 @@ public class MessageReader implements Runnable {
         var request = message.valueOf(Fields.REQUEST);
 
         switch (request) {
+
             case Values.UPDATE_PLAYER_LIST:
                 Platform.runLater(() -> client.updatePlayerList(message));
                 break;
@@ -126,6 +126,10 @@ public class MessageReader implements Runnable {
 
             case Values.TURN:
                 Platform.runLater(client::playerTurn);
+                break;
+
+            case Values.SHOW_RETURN_TO_LOBBY:
+                Platform.runLater(() -> client.showReturnToLobby(message));
                 break;
         }
     }

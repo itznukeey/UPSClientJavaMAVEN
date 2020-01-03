@@ -22,7 +22,7 @@
                         <Font name="Open Sans Regular" size="14.0"/>
                     </font>
                 </Text>
-                <Button fx:id="voteStartButton" mnemonicParsing="false" onAction="#voteStart" text="Ready">
+                <Button fx:id="voteStartButton" mnemonicParsing="false" onAction="#sendready" text="Ready">
                     <font>
                         <Font name="Open Sans Regular" size="25.0"/>
                     </font>
