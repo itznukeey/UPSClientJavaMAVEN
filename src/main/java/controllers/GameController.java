@@ -15,6 +15,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
+import lombok.Getter;
 import lombok.Setter;
 import serialization.Fields;
 import serialization.TCPData;
@@ -41,6 +42,10 @@ public class GameController {
 
     @Setter
     private Boolean canPlay = false;
+
+    @Getter
+    @Setter
+    private Boolean sceneBuilt = false;
 
     @Setter
     private Client client;

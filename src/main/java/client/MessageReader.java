@@ -105,6 +105,9 @@ public class MessageReader implements Runnable {
                 Platform.runLater(client::showGameStartFailed);
                 break;
 
+            case Values.GAME:
+                Platform.runLater(client::prepareGameScene);
+
             case Values.UPDATE_BOARD:
                 Platform.runLater(() -> client.updateBoard(message));
                 break;
@@ -116,7 +119,7 @@ public class MessageReader implements Runnable {
             case Values.JOIN_LOBBY:
                 Platform.runLater(() -> {
                     client.setLobbyId(Integer.parseInt(message.valueOf(Fields.LOBBY_ID)));
-                    Platform.runLater(() -> client.prepareLobbyScene(client.parseUsernames(message)));
+                    Platform.runLater(client::prepareLobbyScene);
                 });
                 break;
 
@@ -140,7 +143,7 @@ public class MessageReader implements Runnable {
         switch (response) {
             case Values.LOGIN:
                 pingService.setSendPingMessages(true);
-                if (message.valueOf(Fields.IS_NEW).equals(Values.TRUE)) {
+                if (message.valueOf(Fields.RESTORE_STATE).equals(Values.FALSE)) {
                     Platform.runLater(client::prepareLobbyListScene);
                 } else {
                     Platform.runLater(() -> client.restoreState(message));
@@ -149,14 +152,14 @@ public class MessageReader implements Runnable {
 
             case Values.LOBBY_LIST:
                 var lobbyList = parseLobbyList(message);
-                client.updateLobbyList(
-                        lobbyList.stream().sorted(Comparator.comparingInt(Lobby::getId)).collect(Collectors.toList()));
+                Platform.runLater(() ->
+                        client.updateLobbyList(
+                                lobbyList.stream().sorted(Comparator.comparingInt(Lobby::getId)).collect(Collectors.toList())));
                 break;
 
             case Values.JOIN_LOBBY:
                 if (message.valueOf(Fields.IS_JOINABLE).equals(Values.TRUE)) {
-                    client.setLobbyId(Integer.parseInt(message.valueOf(Fields.LOBBY_ID)));
-                    Platform.runLater(() -> client.prepareLobbyScene(client.parseUsernames(message)));
+                    Platform.runLater(client::prepareLobbyScene);
                 } else {
                     Platform.runLater(client::showLobbyNotJoinable);
                 }

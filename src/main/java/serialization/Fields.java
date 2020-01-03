@@ -21,4 +21,5 @@ public class Fields {
     public static final String BET = "bet";
     public static final String RESULT = "result";
     public static final String TIME = "time";
+    public static final String RESTORE_STATE = "restoreState";
 }

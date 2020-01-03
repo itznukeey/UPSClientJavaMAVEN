@@ -32,4 +32,6 @@ public class Values {
     public static final String DOUBLE_AFTER_HIT = "doubleAfterHit";
     public static final String BUSTED = "busted";
     public static final String SHOW_RETURN_TO_LOBBY = "showReturnToLobby";
+    public static final String LOBBY = "lobby";
+    public static final String GAME = "game";
 }

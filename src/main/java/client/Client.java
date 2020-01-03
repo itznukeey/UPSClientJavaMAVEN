@@ -180,14 +180,12 @@ public class Client {
 
     }
 
-    public void prepareLobbyScene(List<String> users) {
+    public void prepareLobbyScene() {
         try {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/lobby.fxml"));
             Parent lobbyParent = fxmlLoader.load();
             lobbyController = fxmlLoader.getController();
             lobbyController.setClient(this);
-
-            lobbyController.updateUsersList(users);
 
             stage.setScene(new Scene(lobbyParent));
             state = State.LOBBY;
@@ -219,13 +217,24 @@ public class Client {
     }
 
     public void restoreState(TCPData message) {
-        if (message.valueOf(Fields.IN_GAME).equals(Values.FALSE)) {
-            prepareLobbyListScene();
+        var restoreState = message.valueOf(Fields.RESTORE_STATE);
+        System.out.println("restoring state");
+        switch (restoreState) {
+            case Values.LOBBY_LIST:
+                prepareLobbyListScene();
+                break;
+            case Values.LOBBY:
+                prepareLobbyScene();
+                break;
+            case Values.GAME:
+                prepareGameScene();
+                break;
         }
     }
 
     public void updatePlayerList(TCPData message) {
         lobbyController.updateUsersList(parseUsernames(message));
+        System.out.println("Updated playerlist from the server");
         messageWriter.sendPlayerListUpdated();
     }
 
@@ -246,6 +255,7 @@ public class Client {
         var validationButton = dialog.getDialogPane().lookupButton(ButtonType.OK);
         var input = dialog.getEditor().getText();
         validationButton.addEventFilter(ActionEvent.ACTION, filter -> {
+            System.out.println(input);
             if (!input.matches("\\d+") || Integer.parseInt(input) > 10000) {
                 filter.consume();
             }
@@ -266,30 +276,28 @@ public class Client {
         alert.show();
     }
 
-    public void updateBoard(TCPData message) {
-        if (state == State.LOBBY) {
-            state = State.GAME;
-            prepareGameScene(message);
-        } else {
-            updateGame(message);
-        }
-    }
-
-    private void prepareGameScene(TCPData message) {
+    public void prepareGameScene() {
         try {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/game.fxml"));
             Parent root = fxmlLoader.load();
             gameController = fxmlLoader.getController();
             gameController.setClient(this);
-            gameController.buildScene(message);
             stage.setScene(new Scene(root));
         } catch (IOException ex) {
             System.err.println("Error fxml game scene file is corrupted");
         }
     }
 
-    private void updateGame(TCPData message) {
-        gameController.updateData(message);
+    public void updateBoard(TCPData message) {
+        if (gameController.getSceneBuilt()) {
+            try {
+                gameController.buildScene(message);
+            } catch (IOException ex) {
+                System.err.println("Error fxml game scene file is corrupted");
+            }
+        } else {
+            gameController.updateData(message);
+        }
     }
 
     public void showResults(TCPData message) {
@@ -310,6 +318,7 @@ public class Client {
     }
 
     public void showReconnectedFromSomewhereElse() {
+        disconnect();
         prepareLoginAfterDC();
         var alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Disconnected from the server");
