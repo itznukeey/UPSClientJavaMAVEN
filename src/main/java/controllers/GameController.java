@@ -15,7 +15,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
-import lombok.Getter;
 import lombok.Setter;
 import serialization.Fields;
 import serialization.TCPData;
@@ -43,7 +42,6 @@ public class GameController {
     @Setter
     private Boolean canPlay = false;
 
-    @Getter
     @Setter
     private Boolean sceneBuilt = false;
 
@@ -59,8 +57,8 @@ public class GameController {
     }
 
     public void buildScene(TCPData message) throws IOException {
-        playerCellMap = new HashMap<>();
-        playerCount = Integer.parseInt(message.valueOf(Fields.PLAYER_COUNT));
+        this.playerCellMap = new HashMap<>();
+        this.playerCount = Integer.parseInt(message.valueOf(Fields.PLAYER_COUNT));
 
         for (var playerNo = 0; playerNo < playerCount; playerNo++) {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/player-cell.fxml"));
@@ -224,6 +222,9 @@ public class GameController {
                 break;
             }
         }
+    }
 
+    public Boolean isSceneBuilt() {
+        return sceneBuilt;
     }
 }

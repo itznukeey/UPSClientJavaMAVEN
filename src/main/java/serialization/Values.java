@@ -34,4 +34,5 @@ public class Values {
     public static final String SHOW_RETURN_TO_LOBBY = "showReturnToLobby";
     public static final String LOBBY = "lobby";
     public static final String GAME = "game";
+    public static final String CLIENT_DIDNT_CONFIRM = "clientDidntConfirm";
 }

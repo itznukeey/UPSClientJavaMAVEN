@@ -101,12 +101,19 @@ public class MessageReader implements Runnable {
                 Platform.runLater(client::confirmParticipation);
                 break;
 
+            case Values.CLIENT_DIDNT_CONFIRM:
+                Platform.runLater(client::prepareLobbyListScene);
+                Platform.runLater(client::showClientDidntConfirm);
+                Platform.runLater(() -> client.getMessageWriter().sendLobbyListUpdateRequest());
+                break;
+
             case Values.SHOW_GAME_START_FAILED:
                 Platform.runLater(client::showGameStartFailed);
                 break;
 
             case Values.GAME:
                 Platform.runLater(client::prepareGameScene);
+                break;
 
             case Values.UPDATE_BOARD:
                 Platform.runLater(() -> client.updateBoard(message));

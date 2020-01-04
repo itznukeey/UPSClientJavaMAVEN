@@ -48,7 +48,7 @@ public class LobbiesController {
 
     @FXML
     private void refresh() {
-        client.getMessageWriter().sendLobbyUpdateRequest();
+        client.getMessageWriter().sendLobbyListUpdateRequest();
     }
 
     @FXML

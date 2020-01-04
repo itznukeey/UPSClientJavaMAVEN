@@ -95,7 +95,6 @@ public class Client {
     }
 
     public void login() {
-        //format je vzdy ip:port, takze staci split, pokud uzivatel neco jineho uz  to zachytil frontend
         String[] address = loginController.getAddressField().getText().split(":");
         //connect vrati bool
         if (connect(address[0], Integer.parseInt(address[1]))) {
@@ -147,7 +146,7 @@ public class Client {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/lobbies.fxml"));
             Parent lobbiesRoot = fxmlLoader.load();
             lobbiesController = fxmlLoader.getController();
-            messageWriter.sendLobbyUpdateRequest();
+            messageWriter.sendLobbyListUpdateRequest();
             state = State.LOBBY_LIST;
             lobbiesController.setClient(this);
             stage.setScene(new Scene(lobbiesRoot));
@@ -283,15 +282,18 @@ public class Client {
             gameController = fxmlLoader.getController();
             gameController.setClient(this);
             stage.setScene(new Scene(root));
+            state = State.GAME;
+            System.out.println("Game is prepared");
         } catch (IOException ex) {
             System.err.println("Error fxml game scene file is corrupted");
         }
     }
 
     public void updateBoard(TCPData message) {
-        if (gameController.getSceneBuilt()) {
+        if (!gameController.isSceneBuilt()) {
             try {
                 gameController.buildScene(message);
+                gameController.setSceneBuilt(true);
             } catch (IOException ex) {
                 System.err.println("Error fxml game scene file is corrupted");
             }
@@ -363,5 +365,13 @@ public class Client {
     public void showReturnToLobby(TCPData message) {
         var timeSeconds = message.valueOf(Fields.TIME);
         gameController.showMessage("Game has finished, you will be returned to lobby in " + timeSeconds + " seconds");
+    }
+
+    public void showClientDidntConfirm() {
+        var alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("You were removed from the lobby");
+        alert.setHeaderText("You didnt bet / confirm game");
+        alert.setContentText("You were removed from lobby, you may try to reconnect if game hasnt started without you");
+        alert.show();
     }
 }

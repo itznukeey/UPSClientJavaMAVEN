@@ -31,7 +31,7 @@ public class MessageWriter {
         sendMessage(message.serialize());
     }
 
-    public void sendLobbyUpdateRequest() {
+    public void sendLobbyListUpdateRequest() {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.LOBBY_LIST);
         sendMessage(message.serialize());
