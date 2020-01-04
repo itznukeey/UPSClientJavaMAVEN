@@ -267,14 +267,6 @@ public class Client {
 
     }
 
-    public void showGameStartFailed() {
-        var alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Game could not start");
-        alert.setHeaderText("Not enough players confirmed participation");
-        alert.setContentText("Vote to start to make lobby start faster");
-        alert.show();
-    }
-
     public void prepareGameScene() {
         try {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/game.fxml"));
@@ -300,6 +292,10 @@ public class Client {
         } else {
             gameController.updateData(message);
         }
+    }
+
+    public void showPlayerReconnected(TCPData message) {
+        gameController.showPlayerReconnected(message);
     }
 
     public void showResults(TCPData message) {
@@ -354,7 +350,7 @@ public class Client {
         alert.show();
     }
 
-    public void showGameCouldNotStart() {
+    public void showGameStartFailed() {
         var alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Game could not start");
         alert.setHeaderText("Not enough players confirmed");
@@ -374,4 +370,5 @@ public class Client {
         alert.setContentText("You were removed from lobby, you may try to reconnect if game hasnt started without you");
         alert.show();
     }
+
 }

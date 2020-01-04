@@ -227,4 +227,9 @@ public class GameController {
     public Boolean isSceneBuilt() {
         return sceneBuilt;
     }
+
+    public void showPlayerReconnected(TCPData message) {
+        var player = message.valueOf(Fields.USERNAME);
+        showMessage("Player " + player + " has reconnected");
+    }
 }

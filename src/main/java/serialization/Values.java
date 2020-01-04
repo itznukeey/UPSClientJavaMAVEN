@@ -35,4 +35,5 @@ public class Values {
     public static final String LOBBY = "lobby";
     public static final String GAME = "game";
     public static final String CLIENT_DIDNT_CONFIRM = "clientDidntConfirm";
+    public static final String SHOW_PLAYER_RECONNECTED = "showPlayerReconnected";
 }
