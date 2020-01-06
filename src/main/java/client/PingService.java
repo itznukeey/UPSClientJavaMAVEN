@@ -12,10 +12,15 @@ import lombok.Setter;
  */
 public class PingService implements Runnable {
 
-    private static final Duration MAX_DURATION_BEFORE_ALERT = Duration.ofSeconds(1000);
+    private static final Duration MAX_DURATION_BEFORE_RECONNECT = Duration.ofSeconds(5);
 
-    private static final Duration PING_PERIOD = Duration.ofSeconds(7);
+    private static final Duration PING_PERIOD = Duration.ofSeconds(1);
 
+    private static final Integer RECONNECT_ATTEMPTS_LIMIT = 3;
+
+    private Integer reconnectAttempts = 0;
+
+    @Setter
     private MessageWriter messageWriter;
 
     @Getter
@@ -23,6 +28,8 @@ public class PingService implements Runnable {
     private LocalDateTime lastResponseReceived;
 
     private LocalDateTime lastPingSent;
+
+    private LocalDateTime lastReconnectAttempt;
 
     private Client client;
 
@@ -44,23 +51,46 @@ public class PingService implements Runnable {
     public void run() {
 
         while (!stop) {
+
+            if (reconnectAttempts > 3) {
+                closeConnection();
+                continue;
+            }
+
             /*
             Zkontroluje, jestli za poslednich nekolik sekund obdrzel klient od serveru zpravu, pokud ne uzivatel bude
             upozorneny na ztraceni spojeni se serverem
              */
-            if (!alertSent &&
-                    Duration.between(lastResponseReceived, LocalDateTime.now()).compareTo(MAX_DURATION_BEFORE_ALERT) > 0) {
-                closeConnection();
+            if (Duration.between(lastResponseReceived, LocalDateTime.now())
+                    .compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0) {
+                sendPingMessages = false;
+
+                if (lastReconnectAttempt == null) {
+                    if (client.reconnect()) {
+                        reconnectAttempts = 0;
+
+                    } else {
+                        lastReconnectAttempt = LocalDateTime.now();
+                        reconnectAttempts++;
+                    }
+                } else if (Duration.between(lastReconnectAttempt, LocalDateTime.now())
+                        .compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0) {
+                    if (client.reconnect()) {
+                        reconnectAttempts = 0;
+                        lastReconnectAttempt = null;
+                    } else {
+                        reconnectAttempts++;
+                    }
+                }
             }
 
-            //Sluzba standardne posila pouze ping, aby se zajistilo ze server bude na ping alespon 1 za 100 ms odpovidat
             if (sendPingMessages &&
                     Duration.between(lastPingSent, LocalDateTime.now()).compareTo(PING_PERIOD) > 0) {
                 messageWriter.sendPing();
                 lastPingSent = LocalDateTime.now();
             }
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 System.err.println("Error ping service got interrupted");
             }

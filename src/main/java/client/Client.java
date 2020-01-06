@@ -4,7 +4,6 @@ import controllers.GameController;
 import controllers.LobbiesController;
 import controllers.LobbyController;
 import controllers.LoginController;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +11,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -72,7 +70,6 @@ public class Client {
     }
 
     public boolean connect(String ip, int port) {
-
         try {
             this.socket = new Socket(ip, port);
             this.ip = ip;
@@ -93,6 +90,51 @@ public class Client {
         thread = new Thread(pingService);
         thread.setDaemon(true);
         thread.start();
+
+        return true;
+    }
+
+    private void killSocket() {
+        messageReader.closeThread();
+        messageWriter = null;
+        try {
+            socket.shutdownOutput();
+            socket.shutdownInput();
+            socket = null;
+        } catch (IOException ex) {
+            System.err.println("Error while attempting to close socket");
+        }
+    }
+
+    public void disconnect() {
+
+        try {
+            //Zpusobi ze se vlakna v messageReaderu a pingService zavrou
+            messageReader.closeThread();
+            pingService.closeThread();
+
+            socket.shutdownInput();
+            socket.shutdownOutput();
+
+            prepareLoginAfterDC();
+
+        } catch (IOException e) {
+            System.err.println("Error while attempting to close socket");
+        }
+
+    }
+
+    public synchronized boolean reconnect() {
+        try {
+            this.socket = new Socket(ip, port);
+            this.messageWriter = new MessageWriter(new PrintWriter(socket.getOutputStream(), true));
+            this.messageReader = new MessageReader(new BufferedReader(new InputStreamReader(socket.getInputStream())),
+                    this, pingService);
+
+            messageWriter.sendAuthenticationRequest(username);
+        } catch (IOException e) {
+            System.err.println("Reconnect attempt failed");
+        }
 
         return true;
     }
@@ -119,6 +161,8 @@ public class Client {
             stage.setScene(new Scene(loginRoot));
             stage.setResizable(false);
             stage.show();
+
+            state = State.AUTHENTICATION;
         } catch (IOException ex) {
             System.err.println("Error fxml file of login scene is corrupted");
             System.exit(-1);
@@ -161,25 +205,6 @@ public class Client {
 
     public void updateLobbyList(List<Lobby> lobbyList) {
         lobbiesController.updateListView(lobbyList);
-    }
-
-    public void disconnect() {
-
-        try {
-            socket.shutdownInput();
-            socket.shutdownOutput();
-
-            //Zpusobi ze se vlakna v messageReaderu a pingService zavrou
-            messageReader.closeThread();
-            pingService.closeThread();
-
-            state = State.AUTHENTICATION;
-            prepareLoginAfterDC();
-
-        } catch (IOException e) {
-            System.err.println("Error while attempting to close socket");
-        }
-
     }
 
     public void prepareLobbyScene() {

@@ -17,7 +17,7 @@ public class MessageReader implements Runnable {
 
     private final Client client;
 
-    private Boolean close = false;
+    private Boolean stop = false;
 
     private PingService pingService;
 
@@ -28,13 +28,13 @@ public class MessageReader implements Runnable {
     }
 
     public synchronized void closeThread() {
-        close = true;
+        stop = true;
     }
 
     @Override
     public void run() {
 
-        while (!close) {
+        while (!stop) {
             try {
                 var message = input.readLine();
                 if (message != null) {
@@ -67,7 +67,7 @@ public class MessageReader implements Runnable {
         } catch (NullPointerException | IllegalStateException ex) {
             ex.printStackTrace(); //todo remove this
             System.err.println("Received incorrect message");
-            client.disconnect();
+            Platform.runLater(client::disconnect);
             System.exit(-1);
         }
     }
@@ -76,7 +76,6 @@ public class MessageReader implements Runnable {
         var request = message.valueOf(Fields.REQUEST);
 
         switch (request) {
-
             case Values.UPDATE_PLAYER_LIST:
                 Platform.runLater(() -> client.updatePlayerList(message));
                 break;
@@ -124,10 +123,7 @@ public class MessageReader implements Runnable {
                 break;
 
             case Values.JOIN_LOBBY:
-                Platform.runLater(() -> {
-                    client.setLobbyId(Integer.parseInt(message.valueOf(Fields.LOBBY_ID)));
-                    Platform.runLater(client::prepareLobbyScene);
-                });
+                Platform.runLater(client::prepareLobbyScene);
                 break;
 
             case Values.SHOW_PLAYER_TURN:
