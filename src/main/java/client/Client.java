@@ -4,6 +4,7 @@ import controllers.GameController;
 import controllers.LobbiesController;
 import controllers.LobbyController;
 import controllers.LoginController;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,6 +12,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,6 +23,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
+import serialization.Constants;
 import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
@@ -252,10 +255,16 @@ public class Client {
     public void confirmParticipation() {
         var dialog = new TextInputDialog("200");
         var validationButton = dialog.getDialogPane().lookupButton(ButtonType.OK);
-        var input = dialog.getEditor().getText();
+        var input = dialog.getEditor();
         validationButton.addEventFilter(ActionEvent.ACTION, filter -> {
-            System.out.println(input);
-            if (!input.matches("\\d+") || Integer.parseInt(input) > 10000) {
+            if (!input.getCharacters().toString().matches("\\d+")) {
+                filter.consume();
+                return;
+            }
+
+            var value = Integer.parseInt(input.getCharacters().toString());
+
+            if (!(value >= Constants.MIN_VALUE_BET && value < Constants.MAX_VALUE_BET)) {
                 filter.consume();
             }
         });
