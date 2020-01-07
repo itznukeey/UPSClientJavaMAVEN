@@ -94,7 +94,7 @@ public class Client {
         return true;
     }
 
-    private void killSocket() {
+    public void killSocket() {
         messageReader.closeThread();
         messageWriter = null;
         try {
@@ -124,7 +124,7 @@ public class Client {
 
     }
 
-    public synchronized boolean reconnect() {
+    public boolean reconnect() {
         try {
             this.socket = new Socket(ip, port);
             this.messageWriter = new MessageWriter(new PrintWriter(socket.getOutputStream(), true));
@@ -134,6 +134,7 @@ public class Client {
             messageWriter.sendAuthenticationRequest(username);
         } catch (IOException e) {
             System.err.println("Reconnect attempt failed");
+            return false;
         }
 
         return true;
@@ -148,7 +149,7 @@ public class Client {
         }
     }
 
-    private void prepareLoginAfterDC() {
+    public void prepareLoginAfterDC() {
         try {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
             Parent loginRoot = fxmlLoader.load();

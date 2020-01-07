@@ -37,6 +37,8 @@ public class PingService implements Runnable {
 
     private Boolean alertSent = false;
 
+    private Boolean socketKilled = false;
+
     @Setter
     private Boolean sendPingMessages = false;
 
@@ -52,9 +54,9 @@ public class PingService implements Runnable {
 
         while (!stop) {
 
-            if (reconnectAttempts > 3) {
+            if (reconnectAttempts >= 3) {
                 closeConnection();
-                continue;
+                break;
             }
 
             /*
@@ -65,9 +67,15 @@ public class PingService implements Runnable {
                     .compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0) {
                 sendPingMessages = false;
 
+                if (!socketKilled) {
+                    client.killSocket();
+                    socketKilled = true;
+                }
+
                 if (lastReconnectAttempt == null) {
                     if (client.reconnect()) {
                         reconnectAttempts = 0;
+                        socketKilled = false;
 
                     } else {
                         lastReconnectAttempt = LocalDateTime.now();
@@ -78,6 +86,7 @@ public class PingService implements Runnable {
                     if (client.reconnect()) {
                         reconnectAttempts = 0;
                         lastReconnectAttempt = null;
+                        socketKilled = false;
                     } else {
                         reconnectAttempts++;
                     }
@@ -107,9 +116,9 @@ public class PingService implements Runnable {
             alert.show();
 
             //Zavre pripojeni a nastavi login screen na posledni zadanou ip adresu a username
-            client.disconnect();
-        });
 
+            client.prepareLoginAfterDC();
+        });
     }
 
     public synchronized void closeThread() {

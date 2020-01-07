@@ -68,8 +68,4 @@ public class LoginController {
     public void showServerUnreachable() {
         errorText.setText("Server is unreachable, please try again");
     }
-
-    public void showUsernameNotUnique() {
-        errorText.setText("Username already taken");
-    }
 }
