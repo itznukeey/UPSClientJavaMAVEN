@@ -4,9 +4,6 @@ import javafx.stage.Stage;
 
 public class JavaFXMain extends Application {
 
-
-    public static final String DEFAULT_BET = "1000";
-
     public static void main(String[] args) {
         launch(args);
     }
