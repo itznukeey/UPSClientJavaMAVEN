@@ -12,9 +12,10 @@ import lombok.Setter;
  */
 public class PingService implements Runnable {
 
-    private static final Duration MAX_DURATION_BEFORE_RECONNECT = Duration.ofSeconds(5);
+    //todo change
+    private static final Duration MAX_DURATION_BEFORE_RECONNECT = Duration.ofSeconds(500);
 
-    private static final Duration PING_PERIOD = Duration.ofSeconds(1);
+    private static final Duration PING_PERIOD = Duration.ofSeconds(10);
 
     private static final Integer RECONNECT_ATTEMPTS_LIMIT = 3;
 
@@ -51,10 +52,8 @@ public class PingService implements Runnable {
 
     @Override
     public void run() {
-
         while (!stop) {
-
-            if (reconnectAttempts >= 3) {
+            if (reconnectAttempts >= RECONNECT_ATTEMPTS_LIMIT) {
                 closeConnection();
                 break;
             }

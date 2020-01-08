@@ -54,6 +54,11 @@
                         <Insets/>
                     </TilePane.margin>
                 </Button>
+                <Button fx:id="leaveGameButton" mnemonicParsing="false" text="Leave Game">
+                    <TilePane.margin>
+                        <Insets/>
+                    </TilePane.margin>
+                </Button>
             </children>
         </TilePane>
     </top>

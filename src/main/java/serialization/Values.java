@@ -36,4 +36,5 @@ public class Values {
     public static final String GAME = "game";
     public static final String CLIENT_DIDNT_CONFIRM = "clientDidntConfirm";
     public static final String SHOW_PLAYER_RECONNECTED = "showPlayerReconnected";
+    public static final String DECLINE_PARTICIPATION = "declineParticipation";
 }

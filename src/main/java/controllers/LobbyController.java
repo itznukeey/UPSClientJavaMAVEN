@@ -27,12 +27,12 @@ public class LobbyController {
 
     @FXML
     private void leave() {
-        client.getMessageWriter().sendLeaveLobbyRequest(client.getLobbyId());
+        client.getMessageWriter().sendLeaveLobbyRequest();
         Platform.runLater(client::prepareLobbyListScene);
     }
 
     @FXML
-    private void sendready() {
+    private void sendReady() {
         client.getMessageWriter().sendReady();
     }
 

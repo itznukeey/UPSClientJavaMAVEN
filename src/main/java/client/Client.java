@@ -44,16 +44,24 @@ public class Client {
     @Setter
     private String username;
 
-    @Getter
-    @Setter
-    private Integer lobbyId;
-
+    /**
+     * Controller pro login
+     */
     private LoginController loginController;
 
+    /**
+     * Controller pro lobby list
+     */
     private LobbiesController lobbiesController;
 
+    /**
+     * Controller pro lobby
+     */
     private LobbyController lobbyController;
 
+    /**
+     * Controller pro hru
+     */
     private GameController gameController;
 
     @Getter
@@ -142,7 +150,6 @@ public class Client {
 
     public void login() {
         String[] address = loginController.getAddressField().getText().split(":");
-        //connect vrati bool
         if (connect(address[0], Integer.parseInt(address[1]))) {
             username = loginController.getLoginField().getText();
             messageWriter.sendAuthenticationRequest(username);
@@ -274,12 +281,17 @@ public class Client {
     }
 
     public void showPlayerDisconnected(TCPData message) {
-        lobbyController.showPlayerDisconnected(message.valueOf(Values.USERNAME));
-        messageWriter.sendShownPlayerDisconnected();
+        if (state == State.LOBBY) {
+            lobbyController.showPlayerDisconnected(message.valueOf(Values.USERNAME));
+            messageWriter.sendShownPlayerDisconnected();
+        } else if (state == State.GAME) {
+            gameController.showPlayerDisconnected(message);
+            messageWriter.sendShownPlayerDisconnected();
+        }
     }
 
     public void confirmParticipation() {
-        var dialog = new TextInputDialog("200");
+        var dialog = new TextInputDialog("1000");
         var validationButton = dialog.getDialogPane().lookupButton(ButtonType.OK);
         var input = dialog.getEditor();
         validationButton.addEventFilter(ActionEvent.ACTION, filter -> {
@@ -289,8 +301,7 @@ public class Client {
             }
 
             var value = Integer.parseInt(input.getCharacters().toString());
-
-            if (!(value >= Constants.MIN_VALUE_BET && value < Constants.MAX_VALUE_BET)) {
+            if (!(value >= Constants.MIN_VALUE_BET && value <= Constants.MAX_VALUE_BET)) {
                 filter.consume();
             }
         });
@@ -298,7 +309,10 @@ public class Client {
         dialog.setTitle("Game will start soon");
         dialog.setHeaderText("Confirm your participation, place a bet (minimum 100, maximum 10k)");
         dialog.setContentText("Press OK to confirm your bet");
-        dialog.showAndWait().ifPresent(action -> messageWriter.sendConfirmParticipation(dialog.getEditor().getText()));
+        dialog.showAndWait().ifPresentOrElse(result ->
+                        messageWriter.sendConfirmParticipation(dialog.getEditor().getText()),
+                messageWriter::sendDeclineParticipation
+        );
 
     }
 

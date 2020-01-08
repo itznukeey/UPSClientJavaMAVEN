@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -38,6 +39,9 @@ public class GameController {
 
     @FXML
     private Button doubleDownButton;
+
+    @FXML
+    private Button leaveGameButton;
 
     @Setter
     private Boolean canPlay = false;
@@ -117,6 +121,10 @@ public class GameController {
                 client.getMessageWriter().sendDoubleDown();
                 setCanPlay(false);
             }
+        });
+        leaveGameButton.setOnAction(actionEvent -> {
+            client.getMessageWriter().sendLeaveLobbyRequest();
+            Platform.runLater(client::prepareLobbyListScene);
         });
     }
 
@@ -231,5 +239,10 @@ public class GameController {
     public void showPlayerReconnected(TCPData message) {
         var player = message.valueOf(Fields.USERNAME);
         showMessage("Player " + player + " has reconnected");
+    }
+
+    public void showPlayerDisconnected(TCPData message) {
+        var player = message.valueOf(Fields.USERNAME);
+        showMessage("Player " + player + " has disconnected");
     }
 }

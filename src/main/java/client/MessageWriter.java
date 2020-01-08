@@ -50,10 +50,9 @@ public class MessageWriter {
         sendMessage(message.serialize());
     }
 
-    public void sendLeaveLobbyRequest(Integer lobbyId) {
+    public void sendLeaveLobbyRequest() {
         var message = new TCPData(DataType.REQUEST);
         message.add(Fields.REQUEST, Values.LEAVE_LOBBY);
-        message.add(Fields.LOBBY_ID, String.valueOf(lobbyId));
         sendMessage(message.serialize());
     }
 
@@ -100,6 +99,12 @@ public class MessageWriter {
         var message = new TCPData(DataType.RESPONSE);
         message.add(Fields.RESPONSE, Values.TURN);
         message.add(Fields.TURN_TYPE, Values.DOUBLE_DOWN);
+        sendMessage(message.serialize());
+    }
+
+    public void sendDeclineParticipation() {
+        var message = new TCPData(DataType.RESPONSE);
+        message.add(Fields.RESPONSE, Values.DECLINE_PARTICIPATION);
         sendMessage(message.serialize());
     }
 }
