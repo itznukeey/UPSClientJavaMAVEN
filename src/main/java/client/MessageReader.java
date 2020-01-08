@@ -132,7 +132,7 @@ public class MessageReader implements Runnable {
 
             case Values.SHOW_PLAYER_RECONNECTED:
                 Platform.runLater(() -> client.showPlayerReconnected(message));
-
+                break;
 
             case Values.TURN:
                 Platform.runLater(client::playerTurn);

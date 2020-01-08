@@ -28,14 +28,29 @@ import serialization.Values;
 
 public class Client {
 
+    /**
+     * JavaFX Stage
+     */
     private final Stage stage;
 
+    /**
+     * IP serveru
+     */
     private String ip;
 
+    /**
+     * Port serveru
+     */
     private Integer port;
 
+    /**
+     * Socket
+     */
     private Socket socket;
 
+    /**
+     * Stav klienta
+     */
     @Getter
     @Setter
     private State state;
@@ -64,19 +79,38 @@ public class Client {
      */
     private GameController gameController;
 
+    /**
+     * Message reader objekt
+     */
     @Getter
     private MessageReader messageReader;
 
+    /**
+     * Message writer objekt
+     */
     @Getter
     private MessageWriter messageWriter;
 
+    /**
+     * Pingovaci vlakno pro zjisteni pripojeni
+     */
     private PingService pingService;
 
+    /**
+     * Konstruktor klienta
+     *
+     * @param stage
+     */
     public Client(Stage stage) {
         this.stage = stage;
         prepareLoginScene();
     }
 
+    /**
+     * @param ip
+     * @param port
+     * @return
+     */
     public boolean connect(String ip, int port) {
         try {
             this.socket = new Socket(ip, port);

@@ -36,8 +36,6 @@ public class PingService implements Runnable {
 
     private Boolean stop = false;
 
-    private Boolean alertSent = false;
-
     private Boolean socketKilled = false;
 
     @Setter
@@ -54,7 +52,7 @@ public class PingService implements Runnable {
     public void run() {
         while (!stop) {
             if (reconnectAttempts >= RECONNECT_ATTEMPTS_LIMIT) {
-                closeConnection();
+                showConnectionLostDialog();
                 break;
             }
 
@@ -105,8 +103,7 @@ public class PingService implements Runnable {
         }
     }
 
-    private void closeConnection() {
-        alertSent = true;
+    private void showConnectionLostDialog() {
         Platform.runLater(() -> {
             var alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Client was disconnected from the server");
