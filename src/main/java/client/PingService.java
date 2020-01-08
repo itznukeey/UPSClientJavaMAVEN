@@ -36,7 +36,7 @@ public class PingService implements Runnable {
 
     private Boolean stop = false;
 
-    private Boolean socketKilled = false;
+    private Boolean disconnected = false;
 
     @Setter
     private Boolean sendPingMessages = false;
@@ -50,6 +50,36 @@ public class PingService implements Runnable {
 
     @Override
     public void run() {
+        while (true) {
+
+            if (reconnectAttempts >= RECONNECT_ATTEMPTS_LIMIT) {
+                showConnectionLostDialog();
+                break;
+            }
+
+            //Pokud jsme dlouho nedostali zpravu, znamena to ze se socket pravdepodobne odpojil
+            if (Duration.between(lastResponseReceived, LocalDateTime.now()).compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0
+                    && !disconnected) {
+                sendPingMessages = false;
+                //Zabijeme socket a zkusime prepojit
+                client.killSocket();
+                disconnected = client.reconnect();
+                lastReconnectAttempt = LocalDateTime.now();
+                reconnectAttempts++;
+            }
+
+            if (disconnected &&
+                    Duration.between(lastReconnectAttempt, LocalDateTime.now()).compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0) {
+                client.killSocket();
+                disconnected = client.reconnect();
+                lastReconnectAttempt = LocalDateTime.now();
+                reconnectAttempts++;
+            }
+        }
+    }
+
+    //@Override
+    public void run2() {
         while (!stop) {
             if (reconnectAttempts >= RECONNECT_ATTEMPTS_LIMIT) {
                 showConnectionLostDialog();

@@ -105,25 +105,26 @@ public class GameController {
 
     private void setButtonFunctions() {
         hitButton.setOnAction(actionEvent -> {
-            if (canPlay) {
+            if (canPlay && !client.isUILocked()) {
                 client.getMessageWriter().sendHit();
                 setCanPlay(false);
             }
         });
         standButton.setOnAction(actionEvent -> {
-            if (canPlay) {
+            if (canPlay && !client.isUILocked()) {
                 client.getMessageWriter().sendStand();
                 setCanPlay(false);
             }
         });
         doubleDownButton.setOnAction(actionEvent -> {
-            if (canPlay) {
+            if (canPlay && !client.isUILocked()) {
                 client.getMessageWriter().sendDoubleDown();
                 setCanPlay(false);
             }
         });
         leaveGameButton.setOnAction(actionEvent -> {
-            client.getMessageWriter().sendLeaveLobbyRequest();
+            if (!client.isUILocked())
+                client.getMessageWriter().sendLeaveLobbyRequest();
             Platform.runLater(client::prepareLobbyListScene);
         });
     }

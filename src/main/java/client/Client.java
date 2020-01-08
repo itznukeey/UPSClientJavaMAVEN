@@ -97,6 +97,11 @@ public class Client {
     private PingService pingService;
 
     /**
+     * UI Lock pro tlacitka, aby neodesilali zpravy, kdyz neni klient pripojeny
+     */
+    private Boolean uiLocked = false;
+
+    /**
      * Konstruktor klienta
      *
      * @param stage
@@ -137,8 +142,9 @@ public class Client {
     }
 
     public void killSocket() {
-        messageReader.closeThread();
-        messageWriter = null;
+        this.messageReader.closeThread();
+        this.messageWriter = null;
+        this.uiLocked = true;
         try {
             socket.shutdownOutput();
             socket.shutdownInput();
@@ -175,7 +181,7 @@ public class Client {
 
             messageWriter.sendAuthenticationRequest(username);
         } catch (IOException e) {
-            System.err.println("Reconnect attempt failed");
+            System.out.println("Reconnect attempt failed");
             return false;
         }
 
@@ -454,4 +460,7 @@ public class Client {
         alert.show();
     }
 
+    public boolean isUILocked() {
+        return uiLocked;
+    }
 }

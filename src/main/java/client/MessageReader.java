@@ -13,12 +13,22 @@ import serialization.Values;
 
 public class MessageReader implements Runnable {
 
-    private BufferedReader input;
-
+    /**
+     * Reference na klienta
+     */
     private final Client client;
-
+    /**
+     * Vstup ze socketu
+     */
+    private BufferedReader input;
+    /**
+     * Flag pro vypnuti vlakna
+     */
     private Boolean stop = false;
 
+    /**
+     * Reference na pingovaci sluzbu pro pripojeni
+     */
     private PingService pingService;
 
     public MessageReader(BufferedReader input, Client client, PingService pingService) {

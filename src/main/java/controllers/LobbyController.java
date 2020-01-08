@@ -27,13 +27,17 @@ public class LobbyController {
 
     @FXML
     private void leave() {
-        client.getMessageWriter().sendLeaveLobbyRequest();
-        Platform.runLater(client::prepareLobbyListScene);
+        if (!client.isUILocked()) {
+            client.getMessageWriter().sendLeaveLobbyRequest();
+            Platform.runLater(client::prepareLobbyListScene);
+        }
     }
 
     @FXML
     private void sendReady() {
-        client.getMessageWriter().sendReady();
+        if (!client.isUILocked()) {
+            client.getMessageWriter().sendReady();
+        }
     }
 
     public void updateUsersList(List<String> users) {
