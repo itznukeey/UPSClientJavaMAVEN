@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -55,6 +56,9 @@ public class Client {
     @Setter
     private State state;
 
+    /**
+     * Uzivatelske jmeno
+     */
     @Getter
     @Setter
     private String username;
@@ -97,7 +101,7 @@ public class Client {
     private PingService pingService;
 
     /**
-     * UI Lock pro tlacitka, aby neodesilali zpravy, kdyz neni klient pripojeny
+     * UI Lock flag pro tlacitka, aby neodesilali zpravy, kdyz neni klient pripojeny
      */
     private Boolean uiLocked = false;
 
@@ -112,9 +116,10 @@ public class Client {
     }
 
     /**
-     * @param ip
-     * @param port
-     * @return
+     * @param ip   ip adresa serveru z klienta
+     * @param port port serveru
+     * @return true, pokud java socket api nevyhodi zadny exception, jinak false - spojeni pravdepodobne neprobehlo
+     * spravne
      */
     public boolean connect(String ip, int port) {
         try {
@@ -125,6 +130,7 @@ public class Client {
             this.pingService = new PingService(this, messageWriter);
             this.messageReader = new MessageReader(new BufferedReader(new InputStreamReader(socket.getInputStream())),
                     this, pingService);
+            uiLocked = false;
         } catch (IOException ex) {
             loginController.showServerUnreachable();
             return false;
@@ -146,9 +152,11 @@ public class Client {
         this.messageWriter = null;
         this.uiLocked = true;
         try {
-            socket.shutdownOutput();
-            socket.shutdownInput();
-            socket = null;
+            if (socket != null) {
+                socket.shutdownOutput();
+                socket.shutdownInput();
+                socket = null;
+            }
         } catch (IOException ex) {
             System.err.println("Error while attempting to close socket");
         }
@@ -159,10 +167,12 @@ public class Client {
         try {
             //Zpusobi ze se vlakna v messageReaderu a pingService zavrou
             messageReader.closeThread();
-            pingService.closeThread();
 
-            socket.shutdownInput();
-            socket.shutdownOutput();
+            if (socket != null) {
+                socket.shutdownInput();
+                socket.shutdownOutput();
+                socket = null;
+            }
 
             prepareLoginAfterDC();
 
@@ -180,6 +190,11 @@ public class Client {
                     this, pingService);
 
             messageWriter.sendAuthenticationRequest(username);
+
+            var thread = new Thread(messageReader);
+            thread.setDaemon(true);
+            thread.start();
+
         } catch (IOException e) {
             System.out.println("Reconnect attempt failed");
             return false;
@@ -194,6 +209,19 @@ public class Client {
             username = loginController.getLoginField().getText();
             messageWriter.sendAuthenticationRequest(username);
         }
+    }
+
+    public void showConnectionLostDialog() {
+        Platform.runLater(() -> {
+            var alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Client was disconnected from the server");
+            alert.setHeaderText("Connection was interrupted");
+            alert.setContentText("Please retry to login with same login, your state should be restored");
+            alert.show();
+
+            //Zavre pripojeni a nastavi login screen na posledni zadanou ip adresu a username
+            prepareLoginAfterDC();
+        });
     }
 
     public void prepareLoginAfterDC() {
@@ -462,5 +490,9 @@ public class Client {
 
     public boolean isUILocked() {
         return uiLocked;
+    }
+
+    public void setUILock(boolean uiLocked) {
+        this.uiLocked = uiLocked;
     }
 }

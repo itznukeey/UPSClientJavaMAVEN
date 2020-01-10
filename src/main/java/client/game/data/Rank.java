@@ -1,5 +1,8 @@
 package client.game.data;
 
+/**
+ * Trida hodnoty karty, obsahuje dve metody pro spravne zobrazeni ve hre
+ */
 public enum Rank {
 
     ACE,
@@ -17,6 +20,12 @@ public enum Rank {
     KING;
 
 
+    /**
+     * Vrati rank ze stringu - pro mapping ze serializovane zpravy
+     *
+     * @param string string ze zpravy
+     * @return namapovany Rank
+     */
     public static Rank getRank(String string) {
         switch (string) {
             case "ace":
@@ -58,6 +67,12 @@ public enum Rank {
         return KING;
     }
 
+    /**
+     * Namapuje rank na unicode string (resp. char)
+     *
+     * @param rank hodnota karty
+     * @return String pro zobrazeni
+     */
     public static String unicodeString(Rank rank) {
         switch (rank) {
             case ACE:

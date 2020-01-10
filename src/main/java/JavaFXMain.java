@@ -10,7 +10,6 @@ public class JavaFXMain extends Application {
 
     @Override
     public void start(Stage stage) {
-
-        var client = new Client(stage);
+        new Client(stage);
     }
 }

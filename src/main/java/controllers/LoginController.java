@@ -27,6 +27,10 @@ public class LoginController {
     @Setter
     private Client client;
 
+    /**
+     * Pattern pro zjisteni zda-li je string formatu ip adresa:port
+     * Muze byt i localhost:port
+     */
     private static final Pattern ADDRESS_PATTERN = Pattern.compile("^"
             + "(((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}"
             + "|"
@@ -36,6 +40,7 @@ public class LoginController {
             + ":"
             + "[0-9]{1,5}$");
 
+    private static final Pattern LOGIN_PATTERN = Pattern.compile("^[a-zA-Z0-9]+$");
 
     @FXML
     protected void loginEvent() {
@@ -46,15 +51,17 @@ public class LoginController {
 
         if (loginField.getText().length() > MAX_USERNAME_LENGTH) {
             errorText.setText("Please use shorter username (max " + MAX_USERNAME_LENGTH + ") letters");
+            return;
         }
 
         if (loginField.getText().equals("Dealer")) {
             errorText.setText("Error name \"Dealer\" is forbidden, please select another one");
+            return;
         }
 
-        if (loginField.getText().contains(".") || loginField.getText().contains(",")
-                || loginField.getText().contains("{") || loginField.getText().contains("}")) {
-            errorText.setText("Error forbidden symbol, please be sure to only use alphabet or numeric symbols");
+        if (!LOGIN_PATTERN.matcher(loginField.getText()).matches()) {
+            errorText.setText("Error forbidden symbol, please be sure to only use alphabetic and/or numeric symbols");
+            return;
         }
 
         if (!ADDRESS_PATTERN.matcher(addressField.getText()).matches()) {

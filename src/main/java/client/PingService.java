@@ -2,22 +2,23 @@ package client;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Sluzba, ktera po nekolika vterinach pinguje server
+ * Vlakno pro pingovani serveru. Pingovani serveru nam zaruci ze server si periodicky aktualizuje keepalive timer
+ * pro klienta tzn. kdyz by klient nic nedelal server ho nesmaze a nevykopne.
+ * Vlakno musi bezet po celou dobu od prvniho pripojeni do finalniho odpojeni - obsahuje informace o pokusech k opetovnemu
+ * pripojeni.
  */
 public class PingService implements Runnable {
 
     //todo change
-    private static final Duration MAX_DURATION_BEFORE_RECONNECT = Duration.ofSeconds(500);
+    private static final Duration MAX_DURATION_BEFORE_RECONNECT = Duration.ofSeconds(10);
 
-    private static final Duration PING_PERIOD = Duration.ofSeconds(10);
+    private static final Duration PING_PERIOD = Duration.ofSeconds(5);
 
-    private static final Integer RECONNECT_ATTEMPTS_LIMIT = 3;
+    private static final Integer MAX_RECONNECT_ATTEMPTS = 3;
 
     private Integer reconnectAttempts = 0;
 
@@ -39,7 +40,7 @@ public class PingService implements Runnable {
     private Boolean disconnected = false;
 
     @Setter
-    private Boolean sendPingMessages = false;
+    private volatile Boolean sendPingMessages = false;
 
     public PingService(Client client, MessageWriter messageWriter) {
         this.lastResponseReceived = LocalDateTime.now();
@@ -50,73 +51,33 @@ public class PingService implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
+        while (!stop) {
 
-            if (reconnectAttempts >= RECONNECT_ATTEMPTS_LIMIT) {
-                showConnectionLostDialog();
+            if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+                stop = true;
+                client.showConnectionLostDialog();
                 break;
             }
 
-            //Pokud jsme dlouho nedostali zpravu, znamena to ze se socket pravdepodobne odpojil
+            //Pokud maximalni doba od ziskani zpravy prekrocila dobu pro opetovne pripojeni zkusime znovu pripojit
             if (Duration.between(lastResponseReceived, LocalDateTime.now()).compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0
                     && !disconnected) {
-                sendPingMessages = false;
-                //Zabijeme socket a zkusime prepojit
                 client.killSocket();
-                disconnected = client.reconnect();
-                lastReconnectAttempt = LocalDateTime.now();
-                reconnectAttempts++;
-            }
-
-            if (disconnected &&
-                    Duration.between(lastReconnectAttempt, LocalDateTime.now()).compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0) {
-                client.killSocket();
-                disconnected = client.reconnect();
-                lastReconnectAttempt = LocalDateTime.now();
-                reconnectAttempts++;
-            }
-        }
-    }
-
-    //@Override
-    public void run2() {
-        while (!stop) {
-            if (reconnectAttempts >= RECONNECT_ATTEMPTS_LIMIT) {
-                showConnectionLostDialog();
-                break;
-            }
-
-            /*
-            Zkontroluje, jestli za poslednich nekolik sekund obdrzel klient od serveru zpravu, pokud ne uzivatel bude
-            upozorneny na ztraceni spojeni se serverem
-             */
-            if (Duration.between(lastResponseReceived, LocalDateTime.now())
-                    .compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0) {
-                sendPingMessages = false;
-
-                if (!socketKilled) {
-                    client.killSocket();
-                    socketKilled = true;
+                if (!client.reconnect()) {
+                    disconnected = true;
+                    reconnectAttempts = 1;
+                    lastReconnectAttempt = LocalDateTime.now();
                 }
+            }
 
-                if (lastReconnectAttempt == null) {
-                    if (client.reconnect()) {
-                        reconnectAttempts = 0;
-                        socketKilled = false;
-
-                    } else {
-                        lastReconnectAttempt = LocalDateTime.now();
-                        reconnectAttempts++;
-                    }
-                } else if (Duration.between(lastReconnectAttempt, LocalDateTime.now())
-                        .compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0) {
-                    if (client.reconnect()) {
-                        reconnectAttempts = 0;
-                        lastReconnectAttempt = null;
-                        socketKilled = false;
-                    } else {
-                        reconnectAttempts++;
-                    }
+            if (disconnected && Duration.between(lastReconnectAttempt, LocalDateTime.now())
+                    .compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0) {
+                if (client.reconnect()) {
+                    disconnected = false;
+                    reconnectAttempts = 0;
+                } else {
+                    reconnectAttempts++;
+                    lastReconnectAttempt = LocalDateTime.now();
                 }
             }
 
@@ -125,29 +86,13 @@ public class PingService implements Runnable {
                 messageWriter.sendPing();
                 lastPingSent = LocalDateTime.now();
             }
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                System.err.println("Error ping service got interrupted");
-            }
+        }
+
+        try {
+            Thread.sleep(1);
+        } catch (InterruptedException e) {
+            System.err.println("Thread of ping service was interrupted");
         }
     }
 
-    private void showConnectionLostDialog() {
-        Platform.runLater(() -> {
-            var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Client was disconnected from the server");
-            alert.setHeaderText("Connection was interrupted");
-            alert.setContentText("Please retry to login with same login, your state should be restored");
-            alert.show();
-
-            //Zavre pripojeni a nastavi login screen na posledni zadanou ip adresu a username
-
-            client.prepareLoginAfterDC();
-        });
-    }
-
-    public synchronized void closeThread() {
-        stop = true;
-    }
 }

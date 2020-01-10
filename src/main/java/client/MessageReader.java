@@ -160,6 +160,7 @@ public class MessageReader implements Runnable {
         switch (response) {
             case Values.LOGIN:
                 pingService.setSendPingMessages(true);
+                client.setUILock(false);
                 if (message.valueOf(Fields.RESTORE_STATE).equals(Values.FALSE)) {
                     Platform.runLater(client::prepareLobbyListScene);
                 } else {
