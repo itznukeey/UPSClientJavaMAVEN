@@ -14,13 +14,9 @@ import lombok.Setter;
 public class PingService implements Runnable {
 
     //todo change
-    private static final Duration MAX_DURATION_BEFORE_RECONNECT = Duration.ofSeconds(5);
+    private static final Duration DC_TIMEOUT = Duration.ofSeconds(5);
 
     private static final Duration PING_PERIOD = Duration.ofSeconds(2);
-
-    private static final Integer MAX_RECONNECT_ATTEMPTS = 2;
-
-    private Integer reconnectAttempts = 0;
 
     @Setter
     private volatile MessageWriter messageWriter;
@@ -31,13 +27,9 @@ public class PingService implements Runnable {
 
     private LocalDateTime lastPingSent;
 
-    private LocalDateTime lastReconnectAttempt;
-
     private Client client;
 
     private volatile Boolean stop = false;
-
-    private Boolean disconnected = false;
 
     @Setter
     private volatile Boolean sendPingMessages = false;
@@ -54,34 +46,10 @@ public class PingService implements Runnable {
         while (!stop) {
 
             //Pokud nastal maximalni pocet pokusu pro reconnect, client se nebude dale pokouset pripojit
-            if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+            if (Duration.between(lastPingSent, LocalDateTime.now()).compareTo(DC_TIMEOUT) > 0) {
                 stop = true;
                 client.showConnectionLostDialog();
                 break;
-            }
-
-            //Pokud maximalni doba od ziskani zpravy prekrocila dobu pro opetovne pripojeni zkusime znovu pripojit
-            if (Duration.between(lastResponseReceived, LocalDateTime.now()).compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0
-                    && !disconnected) {
-                client.killSocket();
-                if (!client.reconnect()) {
-                    sendPingMessages = false;
-                    disconnected = true;
-                    reconnectAttempts = 1;
-                    lastReconnectAttempt = LocalDateTime.now();
-                }
-            }
-
-            //Pokud je cas na dalsi pokus o reconnect
-            if (disconnected && Duration.between(lastReconnectAttempt, LocalDateTime.now())
-                    .compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0) {
-                if (client.reconnect()) {
-                    disconnected = false;
-                    reconnectAttempts = 0;
-                } else {
-                    reconnectAttempts++;
-                    lastReconnectAttempt = LocalDateTime.now();
-                }
             }
 
             //

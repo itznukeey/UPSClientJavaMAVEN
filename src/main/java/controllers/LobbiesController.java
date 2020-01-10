@@ -27,16 +27,13 @@ public class LobbiesController {
 
     @FXML
     private void joinLobby() {
-        if (!client.isUILocked()) {
-            client.getMessageWriter().sendJoinLobbyRequest(listView.getSelectionModel().getSelectedItem());
-        }
+        client.getMessageWriter().sendJoinLobbyRequest(listView.getSelectionModel().getSelectedItem());
+
     }
 
     @FXML
     private void refresh() {
-        if (!client.isUILocked()) {
-            client.getMessageWriter().sendLobbyListUpdateRequest();
-        }
+        client.getMessageWriter().sendLobbyListUpdateRequest();
     }
 
     @FXML

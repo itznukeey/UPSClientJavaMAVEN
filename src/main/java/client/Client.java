@@ -104,11 +104,6 @@ public class Client {
     private PingService pingService;
 
     /**
-     * UI Lock flag pro tlacitka, aby neodesilali zpravy, kdyz neni klient pripojeny
-     */
-    private Boolean uiLocked = false;
-
-    /**
      * Konstruktor klienta
      *
      * @param stage
@@ -126,6 +121,7 @@ public class Client {
      */
     public boolean connect(String ip, int port) {
         try {
+            System.out.println("Attempting to connect to " + ip + ":" + port);
             this.socket = new Socket(ip, port);
             this.ip = ip;
             this.port = port;
@@ -133,7 +129,6 @@ public class Client {
             this.pingService = new PingService(this, messageWriter);
             this.messageReader = new MessageReader(new BufferedReader(new InputStreamReader(socket.getInputStream())),
                     this, pingService);
-            uiLocked = false;
         } catch (IOException ex) {
             loginController.showServerUnreachable();
             return false;
@@ -148,21 +143,6 @@ public class Client {
         thread.start();
 
         return true;
-    }
-
-    public void killSocket() {
-        this.messageReader.closeThread();
-        this.messageWriter = null;
-        this.uiLocked = true;
-        try {
-            if (socket != null) {
-                socket.shutdownOutput();
-                socket.shutdownInput();
-                socket = null;
-            }
-        } catch (IOException ex) {
-            System.err.println("Error while attempting to close socket");
-        }
     }
 
     /**
@@ -187,29 +167,6 @@ public class Client {
             System.err.println("Error while attempting to close socket");
         }
 
-    }
-
-    public boolean reconnect() {
-        System.out.println("attempting to reconnect");
-        try {
-            this.socket = new Socket(ip, port);
-            this.messageWriter = new MessageWriter(new PrintWriter(socket.getOutputStream(), true));
-            this.messageReader = new MessageReader(new BufferedReader(new InputStreamReader(socket.getInputStream())),
-                    this, pingService);
-
-            pingService.setMessageWriter(messageWriter);
-            messageWriter.sendAuthenticationRequest(username);
-
-            var thread = new Thread(messageReader);
-            thread.setDaemon(true);
-            thread.start();
-
-        } catch (IOException e) {
-            System.out.println("Reconnect attempt failed");
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -540,13 +497,5 @@ public class Client {
         alert.setHeaderText("You didnt bet / confirm game");
         alert.setContentText("You were removed from lobby, you may try to reconnect if game hasnt started without you");
         alert.show();
-    }
-
-    public boolean isUILocked() {
-        return uiLocked;
-    }
-
-    public void setUILock(boolean uiLocked) {
-        this.uiLocked = uiLocked;
     }
 }
