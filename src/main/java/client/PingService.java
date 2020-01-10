@@ -53,6 +53,7 @@ public class PingService implements Runnable {
     public void run() {
         while (!stop) {
 
+            //Pokud nastal maximalni pocet pokusu pro reconnect, client se nebude dale pokouset pripojit
             if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
                 stop = true;
                 client.showConnectionLostDialog();
@@ -71,6 +72,7 @@ public class PingService implements Runnable {
                 }
             }
 
+            //Pokud je cas na dalsi pokus o reconnect
             if (disconnected && Duration.between(lastReconnectAttempt, LocalDateTime.now())
                     .compareTo(MAX_DURATION_BEFORE_RECONNECT) > 0) {
                 if (client.reconnect()) {
@@ -82,6 +84,7 @@ public class PingService implements Runnable {
                 }
             }
 
+            //
             if (sendPingMessages &&
                     Duration.between(lastPingSent, LocalDateTime.now()).compareTo(PING_PERIOD) > 0) {
                 messageWriter.sendPing();

@@ -190,6 +190,7 @@ public class Client {
     }
 
     public boolean reconnect() {
+        System.out.println("attempting to reconnect");
         try {
             this.socket = new Socket(ip, port);
             this.messageWriter = new MessageWriter(new PrintWriter(socket.getOutputStream(), true));
