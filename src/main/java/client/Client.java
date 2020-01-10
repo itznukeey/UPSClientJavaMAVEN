@@ -27,6 +27,9 @@ import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
 
+/**
+ * Trida klienta, ktera obsahuje metody pro ovladani frontendu
+ */
 public class Client {
 
     /**
@@ -162,11 +165,15 @@ public class Client {
         }
     }
 
+    /**
+     * Odpoji klienta - zavre message reader vlakno a socket - volano z
+     */
     public void disconnect() {
 
         try {
             //Zpusobi ze se vlakna v messageReaderu a pingService zavrou
             messageReader.closeThread();
+            pingService.closeThread();
 
             if (socket != null) {
                 socket.shutdownInput();
@@ -189,6 +196,7 @@ public class Client {
             this.messageReader = new MessageReader(new BufferedReader(new InputStreamReader(socket.getInputStream())),
                     this, pingService);
 
+            pingService.setMessageWriter(messageWriter);
             messageWriter.sendAuthenticationRequest(username);
 
             var thread = new Thread(messageReader);
@@ -203,6 +211,9 @@ public class Client {
         return true;
     }
 
+    /**
+     * Pokusi se pripojit k serveru
+     */
     public void login() {
         String[] address = loginController.getAddressField().getText().split(":");
         if (connect(address[0], Integer.parseInt(address[1]))) {
@@ -211,12 +222,15 @@ public class Client {
         }
     }
 
+    /**
+     * Ukaze dialog se ztracenym spojenim
+     */
     public void showConnectionLostDialog() {
         Platform.runLater(() -> {
             var alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Client was disconnected from the server");
-            alert.setHeaderText("Connection was interrupted");
-            alert.setContentText("Please retry to login with same login, your state should be restored");
+            alert.setHeaderText("Connection lost");
+            alert.setContentText("Server appears to be unreachable, please try to log in later");
             alert.show();
 
             //Zavre pripojeni a nastavi login screen na posledni zadanou ip adresu a username
@@ -224,6 +238,9 @@ public class Client {
         });
     }
 
+    /**
+     * Pripravi scenu s loginem po odpojeni od serveru
+     */
     public void prepareLoginAfterDC() {
         try {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
@@ -245,6 +262,9 @@ public class Client {
         }
     }
 
+    /**
+     * Pripravi scenu s loginem
+     */
     public void prepareLoginScene() {
         try {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
@@ -254,7 +274,7 @@ public class Client {
             loginController.setClient(this);
 
             stage.setScene(new Scene(loginRoot));
-            stage.setResizable(true);
+            stage.setResizable(false);
             stage.show();
 
             state = State.AUTHENTICATION;
@@ -264,6 +284,9 @@ public class Client {
         }
     }
 
+    /**
+     * Pripravi scenu se seznamem hernich mistnosti
+     */
     public void prepareLobbyListScene() {
         try {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/lobbies.fxml"));
@@ -273,16 +296,25 @@ public class Client {
             state = State.LOBBY_LIST;
             lobbiesController.setClient(this);
             stage.setScene(new Scene(lobbiesRoot));
+            stage.setResizable(true);
         } catch (IOException ex) {
             System.err.println("Error fxml file of lobbies scene is corrupted");
             System.exit(-1);
         }
     }
 
+    /**
+     * Aktualizuje stav vsech hernich mistnosti
+     *
+     * @param lobbyList seznam hernich mistnosti
+     */
     public void updateLobbyList(List<Lobby> lobbyList) {
         lobbiesController.updateListView(lobbyList);
     }
 
+    /**
+     * Pripravi scenu s lobby
+     */
     public void prepareLobbyScene() {
         try {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/lobby.fxml"));
@@ -299,6 +331,9 @@ public class Client {
 
     }
 
+    /**
+     * Alert s lobby not joinable - uzivatel se zkusil pripojit do lobby, kde je rozehrana hra nebo maximum hracu
+     */
     public void showLobbyNotJoinable() {
         var alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error while joining lobby");
@@ -307,6 +342,12 @@ public class Client {
         alert.show();
     }
 
+    /**
+     * Zpracuje vsechny uzivatelska jmena ze zpravy
+     *
+     * @param message tcp data se zpravou
+     * @return seznam vsech hracu
+     */
     public List<String> parseUsernames(TCPData message) {
         var list = new ArrayList<String>();
         message.getFields().forEach((field, value) -> {
@@ -319,6 +360,11 @@ public class Client {
         return list;
     }
 
+    /**
+     * Obnovi stav, ve kterem klient s danym uzivatelskym jmenem zustal
+     *
+     * @param message tcp data
+     */
     public void restoreState(TCPData message) {
         var restoreState = message.valueOf(Fields.RESTORE_STATE);
         System.out.println("restoring state");
@@ -335,12 +381,19 @@ public class Client {
         }
     }
 
+    /**
+     * Aktualizuje seznam vsech hracu
+     *
+     * @param message zprava od serveru
+     */
     public void updatePlayerList(TCPData message) {
         lobbyController.updateUsersList(parseUsernames(message));
-        System.out.println("Updated playerlist from the server");
         messageWriter.sendPlayerListUpdated();
     }
 
+    /**
+     * @param message
+     */
     public void showPlayerConnected(TCPData message) {
         if (state == State.LOBBY) {
             lobbyController.showPlayerConnected(message.valueOf(Values.USERNAME));

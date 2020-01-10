@@ -14,16 +14,16 @@ import lombok.Setter;
 public class PingService implements Runnable {
 
     //todo change
-    private static final Duration MAX_DURATION_BEFORE_RECONNECT = Duration.ofSeconds(10);
+    private static final Duration MAX_DURATION_BEFORE_RECONNECT = Duration.ofSeconds(5);
 
-    private static final Duration PING_PERIOD = Duration.ofSeconds(5);
+    private static final Duration PING_PERIOD = Duration.ofSeconds(2);
 
-    private static final Integer MAX_RECONNECT_ATTEMPTS = 3;
+    private static final Integer MAX_RECONNECT_ATTEMPTS = 2;
 
     private Integer reconnectAttempts = 0;
 
     @Setter
-    private MessageWriter messageWriter;
+    private volatile MessageWriter messageWriter;
 
     @Getter
     @Setter
@@ -35,7 +35,7 @@ public class PingService implements Runnable {
 
     private Client client;
 
-    private Boolean stop = false;
+    private volatile Boolean stop = false;
 
     private Boolean disconnected = false;
 
@@ -64,6 +64,7 @@ public class PingService implements Runnable {
                     && !disconnected) {
                 client.killSocket();
                 if (!client.reconnect()) {
+                    sendPingMessages = false;
                     disconnected = true;
                     reconnectAttempts = 1;
                     lastReconnectAttempt = LocalDateTime.now();
@@ -93,6 +94,11 @@ public class PingService implements Runnable {
         } catch (InterruptedException e) {
             System.err.println("Thread of ping service was interrupted");
         }
+    }
+
+    public void closeThread() {
+        sendPingMessages = true;
+        stop = true;
     }
 
 }
