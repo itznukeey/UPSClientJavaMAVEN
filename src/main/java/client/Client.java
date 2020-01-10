@@ -454,12 +454,13 @@ public class Client {
     }
 
     public void showRemovedFromLobby() {
-        prepareLoginAfterDC();
+        prepareLobbyListScene();
         var alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Removed from lobby");
         alert.setHeaderText("You have been removed from the lobby");
-        alert.setContentText("Game you attempt to reconnect to has finished");
+        alert.setContentText("You declined the initial bet");
         alert.show();
+        messageWriter.sendLobbyListUpdateRequest();
     }
 
     public void showNotYourTurnDialog() {
