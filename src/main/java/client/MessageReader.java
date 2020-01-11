@@ -1,15 +1,13 @@
 package client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.stream.Collectors;
 import javafx.application.Platform;
 import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.time.LocalDateTime;
 
 public class MessageReader implements Runnable {
 
@@ -31,33 +29,54 @@ public class MessageReader implements Runnable {
      */
     private PingService pingService;
 
+    /**
+     * @param input       input stream ze socketu
+     * @param client      reference na klienta
+     * @param pingService reference na ping service
+     */
     public MessageReader(BufferedReader input, Client client, PingService pingService) {
         this.input = input;
         this.client = client;
         this.pingService = pingService;
     }
 
+    /**
+     * Nastavi stop na true, aby se ukoncil while ve vlaknu a vlakno se zavrelo
+     */
     public synchronized void closeThread() {
-        stop = true;
+        this.stop = true;
     }
 
+    /**
+     * Run metoda, ktera bezi ve vlakne
+     */
     @Override
     public void run() {
 
         while (!stop) {
             try {
-                var message = input.readLine();
+                String message = null;
+                if (input.ready()) {
+                    //Server na konec kazde zpravy pridava newline tzn zprava jde vzdy precist pres readline
+                    message = input.readLine();
+                }
                 if (message != null) {
                     pingService.setLastResponseReceived(LocalDateTime.now());
                     parse(message);
                 }
             } catch (IOException ex) {
+                //Pokud klient dostane nespravna data, nejedna se o spravny server -> disconnect
                 System.err.println("Incorrect data received, disconnecting");
-                client.disconnect();
+                Platform.runLater(client::disconnect);
             }
         }
     }
 
+    /**
+     * Zpracuje precteny string ze serveru
+     *
+     * @param messageString string ziskany ctenim ze serveru
+     */
     private void parse(String messageString) {
         var message = new TCPData(messageString);
 
@@ -69,19 +88,24 @@ public class MessageReader implements Runnable {
                 case RESPONSE:
                     processResponse(message);
                     break;
+                //Server ping nikdy neposila, posila pouze response a request, odpoved na ping je vzdy response
                 case PING:
 
                 default:
                     break;
             }
         } catch (NullPointerException | IllegalStateException ex) {
-            ex.printStackTrace(); //todo remove this
             System.err.println("Received incorrect message");
             Platform.runLater(client::disconnect);
             System.exit(-1);
         }
     }
 
+    /**
+     * Zpracuje dany pozadavek
+     *
+     * @param message zprava s pozadavkem
+     */
     private void processRequest(TCPData message) {
         var request = message.valueOf(Fields.REQUEST);
 
@@ -154,6 +178,11 @@ public class MessageReader implements Runnable {
         }
     }
 
+    /**
+     * Zpracuje odpoved od serveru
+     *
+     * @param message zprava s odpovedi
+     */
     private void processResponse(TCPData message) {
         var response = message.valueOf(Fields.RESPONSE);
 
@@ -168,10 +197,8 @@ public class MessageReader implements Runnable {
                 break;
 
             case Values.LOBBY_LIST:
-                var lobbyList = parseLobbyList(message);
                 Platform.runLater(() ->
-                        client.updateLobbyList(
-                                lobbyList.stream().sorted(Comparator.comparingInt(Lobby::getId)).collect(Collectors.toList())));
+                        client.parseLobbyList(message));
                 break;
 
             case Values.JOIN_LOBBY:
@@ -190,19 +217,5 @@ public class MessageReader implements Runnable {
                 Platform.runLater(client::showDoubleDownAfterHit);
                 break;
         }
-    }
-
-    private ArrayList<Lobby> parseLobbyList(TCPData message) {
-        var lobbyList = new ArrayList<Lobby>();
-        message.getFields().forEach((field, value) -> {
-            if (field.equals(Fields.DATA_TYPE) || field.equals(Fields.RESPONSE)) {
-                return;
-            }
-
-            String[] lobbyInfo = value.split(";");
-            lobbyList.add(new Lobby(
-                    Integer.parseInt(lobbyInfo[0]), Integer.parseInt(lobbyInfo[1]), Integer.parseInt(lobbyInfo[2])));
-        });
-        return lobbyList;
     }
 }

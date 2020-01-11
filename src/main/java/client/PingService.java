@@ -1,9 +1,10 @@
 package client;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 /**
  * Vlakno pro pingovani serveru. Pingovani serveru nam zaruci ze server si periodicky aktualizuje keepalive timer
@@ -13,27 +14,55 @@ import lombok.Setter;
  */
 public class PingService implements Runnable {
 
-    //todo change
-    private static final Duration DC_TIMEOUT = Duration.ofSeconds(5);
+    /**
+     * Timeout po kterem se klient odpoji od serveru
+     */
+    private static final Duration DC_TIMEOUT = Duration.ofSeconds(30);
 
+    /**
+     * Perioda pro poslani keepalive zpravy serveru
+     */
     private static final Duration PING_PERIOD = Duration.ofSeconds(2);
 
+    /**
+     * Reference na MessageWriter pro poslani pingu
+     */
     @Setter
-    private volatile MessageWriter messageWriter;
+    private MessageWriter messageWriter;
 
+    /**
+     * Cas obdrzeni posledni zpravy
+     */
     @Getter
     @Setter
     private LocalDateTime lastResponseReceived;
 
+    /**
+     * Cas odeslani posledni keepalive zpravy
+     */
     private LocalDateTime lastPingSent;
 
+    /**
+     * Reference na klienta
+     */
     private Client client;
 
-    private volatile Boolean stop = false;
+    /**
+     * Flag pro vypnuti vlakna
+     */
+    private Boolean stop = false;
 
+    /**
+     * Flag pro zasilani pingu - ping ma smysl posilat az kdyz od serveru klient obdrzi login response
+     */
     @Setter
     private volatile Boolean sendPingMessages = false;
 
+    /**
+     * Konstruktor pro vytvoreni pingovaci sluzby
+     * @param client reference na klienta
+     * @param messageWriter reference na message writer
+     */
     public PingService(Client client, MessageWriter messageWriter) {
         this.lastResponseReceived = LocalDateTime.now();
         this.client = client;
@@ -41,6 +70,9 @@ public class PingService implements Runnable {
         lastPingSent = LocalDateTime.now();
     }
 
+    /**
+     * Kod ve vlakne
+     */
     @Override
     public void run() {
         while (!stop) {
@@ -52,7 +84,7 @@ public class PingService implements Runnable {
                 break;
             }
 
-            //
+            //Pokud se maji posilat pingovaci zpravy a je cas poslat keepalive zpravu
             if (sendPingMessages &&
                     Duration.between(lastPingSent, LocalDateTime.now()).compareTo(PING_PERIOD) > 0) {
                 messageWriter.sendPing();
@@ -61,14 +93,17 @@ public class PingService implements Runnable {
         }
 
         try {
+            //Thread sleep pro mensi zasah na vykon - nepotrebujeme presne pocitani casu
             Thread.sleep(1);
         } catch (InterruptedException e) {
             System.err.println("Thread of ping service was interrupted");
         }
     }
 
+    /**
+     * Zavre vlakno
+     */
     public void closeThread() {
-        sendPingMessages = true;
         stop = true;
     }
 

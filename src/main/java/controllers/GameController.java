@@ -4,11 +4,6 @@ import client.Client;
 import client.game.data.Card;
 import client.game.data.Rank;
 import client.game.data.Suit;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +16,15 @@ import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Controller sceny pro hru - obsahuje kod tlacitek a zpracovani zprav z backendu
+ */
 public class GameController {
 
     private static final String DEALER = "dealer";
@@ -74,7 +78,7 @@ public class GameController {
 
             playerCellController.getBetResult().setText(bet + " : " + "???");
             if (username.equals(client.getUsername())) {
-                username += " (YOU)";
+                username += " (you)";
             }
             playerCellController.setUsername(username);
 
@@ -105,16 +109,22 @@ public class GameController {
 
     private void setButtonFunctions() {
         hitButton.setOnAction(actionEvent -> {
-            client.getMessageWriter().sendHit();
-            setCanPlay(false);
+            if (canPlay) {
+                client.getMessageWriter().sendHit();
+                setCanPlay(false);
+            }
         });
         standButton.setOnAction(actionEvent -> {
-            client.getMessageWriter().sendStand();
-            setCanPlay(false);
+            if (canPlay) {
+                client.getMessageWriter().sendStand();
+                setCanPlay(false);
+            }
         });
         doubleDownButton.setOnAction(actionEvent -> {
-            client.getMessageWriter().sendDoubleDown();
-            setCanPlay(false);
+            if (canPlay) {
+                client.getMessageWriter().sendDoubleDown();
+                setCanPlay(false);
+            }
         });
         leaveGameButton.setOnAction(actionEvent -> {
             client.getMessageWriter().sendLeaveLobbyRequest();

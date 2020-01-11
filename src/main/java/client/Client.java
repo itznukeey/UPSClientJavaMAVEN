@@ -4,13 +4,6 @@ import controllers.GameController;
 import controllers.LobbiesController;
 import controllers.LobbyController;
 import controllers.LoginController;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -27,8 +20,19 @@ import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
- * Trida klienta, ktera obsahuje metody pro ovladani frontendu
+ * Trida klienta, ktera obsahuje metody pro ovladani frontendu. Jakakoliv metoda ovlivnujici stage musi
+ * byt volana pres {@code Platform.runLater()}, aby byla synchronizovana s vlaknem, ve kterem je stage spustena
  */
 public class Client {
 
@@ -290,6 +294,25 @@ public class Client {
     }
 
     /**
+     * Zpracuje zpravu se seznamem hernich mistnosti a aktualizuje lobby list v lobby scene
+     *
+     * @param message
+     */
+    public void parseLobbyList(TCPData message) {
+        var lobbyList = new ArrayList<Lobby>();
+        message.getFields().forEach((field, value) -> {
+            if (field.equals(Fields.DATA_TYPE) || field.equals(Fields.RESPONSE)) {
+                return;
+            }
+
+            String[] lobbyInfo = value.split(";");
+            lobbyList.add(new Lobby(
+                    Integer.parseInt(lobbyInfo[0]), Integer.parseInt(lobbyInfo[1]), Integer.parseInt(lobbyInfo[2])));
+        });
+        updateLobbyList(lobbyList.stream().sorted(Comparator.comparingInt(Lobby::getId)).collect(Collectors.toList()));
+    }
+
+    /**
      * Alert s lobby not joinable - uzivatel se zkusil pripojit do lobby, kde je rozehrana hra nebo maximum hracu
      */
     public void showLobbyNotJoinable() {
@@ -350,7 +373,9 @@ public class Client {
     }
 
     /**
-     * @param message
+     * Zobrazi pripojeni noveho hrace
+     *
+     * @param message zprava o pripojeni noveho hrace do lobby
      */
     public void showPlayerConnected(TCPData message) {
         if (state == State.LOBBY) {
@@ -359,6 +384,11 @@ public class Client {
         }
     }
 
+    /**
+     * Zobrazi zpravu o odpojeni hrace z lobby nebo ze hry
+     *
+     * @param message zprava o odpojeni hrace
+     */
     public void showPlayerDisconnected(TCPData message) {
         if (state == State.LOBBY) {
             lobbyController.showPlayerDisconnected(message.valueOf(Values.USERNAME));
@@ -369,10 +399,15 @@ public class Client {
         }
     }
 
+    /**
+     * Spusti dialog s potvrzenim ucasti - uzivateli se zobrazi kolik chce vsadit, pokud okno vypne
+     * dialog automaticky posle ze se zucastnit nechce a server ho odstrani z lobby
+     */
     public void confirmParticipation() {
         var dialog = new TextInputDialog("1000");
         var validationButton = dialog.getDialogPane().lookupButton(ButtonType.OK);
         var input = dialog.getEditor();
+        //Validace zda-li je v textovem poli cislo a je v danem rozmezi
         validationButton.addEventFilter(ActionEvent.ACTION, filter -> {
             if (!input.getCharacters().toString().matches("\\d+")) {
                 filter.consume();
@@ -388,6 +423,7 @@ public class Client {
         dialog.setTitle("Game will start soon");
         dialog.setHeaderText("Confirm your participation, place a bet (minimum 100, maximum 10k)");
         dialog.setContentText("Press OK to confirm your bet");
+        //pokud je stisknuty OK a je validni odesle confirmParticipation jinak declineParticipation
         dialog.showAndWait().ifPresentOrElse(result ->
                         messageWriter.sendConfirmParticipation(dialog.getEditor().getText()),
                 messageWriter::sendDeclineParticipation
@@ -395,6 +431,9 @@ public class Client {
 
     }
 
+    /**
+     * Pripravi scenu s hrou
+     */
     public void prepareGameScene() {
         try {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/game.fxml"));
@@ -409,6 +448,10 @@ public class Client {
         }
     }
 
+    /**
+     * Aktualizuje stav hry
+     * @param message zprava s daty hry
+     */
     public void updateBoard(TCPData message) {
         if (!gameController.isSceneBuilt()) {
             try {
@@ -422,18 +465,33 @@ public class Client {
         }
     }
 
+    /**
+     * Zobrazi zpravu o opetovnem pripojeni hrace
+     * @param message zprava o opetovnem pripojeni hrace
+     */
     public void showPlayerReconnected(TCPData message) {
         gameController.showPlayerReconnected(message);
     }
 
+    /**
+     * Zobrazi vysledky
+     * @param message zprava s vysledky
+     */
     public void showResults(TCPData message) {
         gameController.showResults(message);
     }
 
+    /**
+     * Zobrazi hracuv tah
+     * @param message zprava o tahu hrace
+     */
     public void showPlayerTurn(TCPData message) {
         gameController.showTurn(message);
     }
 
+    /**
+     * Oznami hraci ze je jeho tah
+     */
     public void playerTurn() {
         gameController.setCanPlay(true);
         var alert = new Alert(Alert.AlertType.INFORMATION);
@@ -443,6 +501,9 @@ public class Client {
         alert.show();
     }
 
+    /**
+     * Zobrazi, ze se uzivatelske jmeno pripojilo odjinud a odpoji se od serveru
+     */
     public void showReconnectedFromSomewhereElse() {
         disconnect();
         prepareLoginAfterDC();
@@ -453,6 +514,9 @@ public class Client {
         alert.show();
     }
 
+    /**
+     * Zobrazi hraci, ze byl odstranen z lobby - odmitnutim sazky nebo neaktivite pri sazce
+     */
     public void showRemovedFromLobby() {
         prepareLobbyListScene();
         var alert = new Alert(Alert.AlertType.INFORMATION);
@@ -463,6 +527,9 @@ public class Client {
         messageWriter.sendLobbyListUpdateRequest();
     }
 
+    /**
+     * Zobrazi uzivateli, ze neni jeho tah
+     */
     public void showNotYourTurnDialog() {
         var alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Not your turn!");
@@ -471,6 +538,9 @@ public class Client {
         alert.show();
     }
 
+    /**
+     * Zobrazi uzivateli, ze se pokusil zahrat double down po tom co uz zahral hit
+     */
     public void showDoubleDownAfterHit() {
         var alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Attempting to double down after having already hit");
@@ -479,6 +549,9 @@ public class Client {
         alert.show();
     }
 
+    /**
+     * Zobrazi ze hru se nepodarilo spustit
+     */
     public void showGameStartFailed() {
         var alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Game could not start");
@@ -487,11 +560,18 @@ public class Client {
         alert.show();
     }
 
+    /**
+     * Zobrazi oznameni o vraceni se do lobby
+     * @param message zprava s casem
+     */
     public void showReturnToLobby(TCPData message) {
         var timeSeconds = message.valueOf(Fields.TIME);
         gameController.showMessage("Game has finished, you will be returned to lobby in " + timeSeconds + " seconds");
     }
 
+    /**
+     * Zobrazi uzivateli, ze nepotvrdil sazku a byl odstranen z lobby
+     */
     public void showClientDidntConfirm() {
         var alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("You were removed from the lobby");

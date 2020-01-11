@@ -1,19 +1,34 @@
 package client;
 
-import java.io.PrintWriter;
 import serialization.DataType;
 import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
 
+import java.io.PrintWriter;
+
+/**
+ * Trida slouzici pro zapis do output streamu pro server
+ */
 public class MessageWriter {
 
+    /**
+     * Output stream pro server
+     */
     private final PrintWriter output;
 
+    /**
+     * Pro vytvoreni je potreba pouze output stream serveru
+     * @param output
+     */
     public MessageWriter(PrintWriter output) {
         this.output = output;
     }
 
+    /**
+     * Synchronizovane napsani zpravy serveru
+     * @param serializedMessage serializovana zprava
+     */
     private synchronized void sendMessage(String serializedMessage) {
         System.out.print(serializedMessage);
         output.print(serializedMessage);
