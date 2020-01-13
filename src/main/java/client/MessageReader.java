@@ -78,9 +78,8 @@ public class MessageReader implements Runnable {
      * @param messageString string ziskany ctenim ze serveru
      */
     private void parse(String messageString) {
-        var message = new TCPData(messageString);
-
         try {
+        var message = new TCPData(messageString);
             switch (message.getDataType()) {
                 case REQUEST:
                     processRequest(message);
@@ -98,7 +97,6 @@ public class MessageReader implements Runnable {
         } catch (NullPointerException | IllegalStateException ex) {
             System.err.println("Received incorrect message");
             Platform.runLater(client::disconnect);
-            System.exit(-1);
         }
     }
 

@@ -212,6 +212,7 @@ public class Client {
             loginController.setClient(this);
             loginController.getLoginField().setText(username);
             loginController.getAddressField().setText(ip + ":" + port);
+            loginController.showConnectionClosed();
 
             stage.setScene(new Scene(loginRoot));
             stage.setResizable(false);

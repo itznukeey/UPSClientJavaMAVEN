@@ -12,7 +12,7 @@ import lombok.Getter;
  */
 public class PlayerCellController {
 
-    public static final String TOTAL_SCORE = "Total score: ";
+    public static final String TOTAL_SCORE = "Score: ";
 
     /**
      * Uzivatelske jmeno hrace

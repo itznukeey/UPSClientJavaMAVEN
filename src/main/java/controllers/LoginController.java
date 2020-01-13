@@ -1,7 +1,9 @@
 package controllers;
 
 import client.Client;
+
 import java.util.regex.Pattern;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
@@ -101,5 +103,13 @@ public class LoginController {
      */
     public void showServerUnreachable() {
         errorText.setText("Server is unreachable, please try again");
+    }
+
+    /**
+     * Zobrazi, ze spojeni se serverem bylo uzavreno
+     */
+    public void showConnectionClosed() {
+        errorText.setText("Previous connection was closed, either because server was unreachable " +
+                "or due to incorrect message received");
     }
 }

@@ -17,7 +17,7 @@ public class PingService implements Runnable {
     /**
      * Timeout po kterem se klient odpoji od serveru
      */
-    private static final Duration DC_TIMEOUT = Duration.ofSeconds(30);
+    private static final Duration DC_TIMEOUT = Duration.ofSeconds(14);
 
     /**
      * Perioda pro poslani keepalive zpravy serveru
