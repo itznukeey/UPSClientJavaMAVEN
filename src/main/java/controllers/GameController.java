@@ -296,7 +296,7 @@ public class GameController {
 
                 showMessage(isBusted ?
                         "Player " + player + " hit, got " + card.toString() + " and is busted"
-                        : "Player" + player + " hit and got " + card.toString());
+                        : "Player " + player + " hit and got " + card.toString());
                 break;
             }
             case Values.DOUBLE_DOWN: {

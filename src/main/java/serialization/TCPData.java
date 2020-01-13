@@ -95,7 +95,7 @@ public class TCPData {
         }
 
         try {
-            System.out.println(message);
+            System.out.println("Serialized message read: " + message);
             message = message.replace("{", "").replace("}", "");
 
             String[] commaSplit = message.split(",");

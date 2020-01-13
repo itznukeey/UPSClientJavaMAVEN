@@ -1,11 +1,10 @@
 package client;
 
+import java.io.PrintWriter;
 import serialization.DataType;
 import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
-
-import java.io.PrintWriter;
 
 /**
  * Trida slouzici pro zapis do output streamu pro server
@@ -30,7 +29,7 @@ public class MessageWriter {
      * @param serializedMessage serializovana zprava
      */
     private synchronized void sendMessage(String serializedMessage) {
-        System.out.print(serializedMessage);
+        System.out.print("Serialized message sent: " + serializedMessage);
         output.print(serializedMessage);
         output.flush();
     }

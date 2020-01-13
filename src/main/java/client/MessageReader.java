@@ -90,6 +90,7 @@ public class MessageReader implements Runnable {
                     break;
                 //Server ping nikdy neposila, posila pouze response a request, odpoved na ping je vzdy response
                 case PING:
+                    break;
 
                 default:
                     break;
@@ -170,6 +171,9 @@ public class MessageReader implements Runnable {
             case Values.SHOW_PLAYER_RECONNECTED:
                 Platform.runLater(() -> client.showPlayerReconnected(message));
                 break;
+            case Values.SHOW_PLAYER_SKIPPED:
+                Platform.runLater(() -> client.showPlayerSkipped(message));
+                break;
 
             case Values.TURN:
                 Platform.runLater(client::playerTurn);
@@ -177,6 +181,11 @@ public class MessageReader implements Runnable {
 
             case Values.SHOW_RETURN_TO_LOBBY:
                 Platform.runLater(() -> client.showReturnToLobby(message));
+                break;
+
+            default:
+                System.err.println("Error, message not recognized");
+                client.disconnect();
                 break;
         }
     }
@@ -217,6 +226,15 @@ public class MessageReader implements Runnable {
 
             case Values.DOUBLE_AFTER_HIT:
                 Platform.runLater(client::showDoubleDownAfterHit);
+                break;
+
+            case Values.PING:
+            case Values.LEAVE_LOBBY:
+                break;
+
+            default:
+                System.err.println("Error message not recognized");
+                client.disconnect();
                 break;
         }
     }

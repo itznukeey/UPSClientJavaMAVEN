@@ -34,4 +34,6 @@ public class Values {
     public static final String SHOW_PLAYER_RECONNECTED = "showPlayerReconnected";
     public static final String DECLINE_PARTICIPATION = "declineParticipation";
     public static final String SHOW_CURRENT_PLAYER = "showCurrentPlayer";
+    public static final String SHOW_PLAYER_SKIPPED = "showPlayerSkipped";
+    public static final String PING = "ping";
 }

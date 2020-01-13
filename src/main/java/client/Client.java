@@ -109,10 +109,11 @@ public class Client {
     /**
      * Konstruktor klienta
      *
-     * @param stage
+     * @param stage stage z JavaFX mainu
      */
     public Client(Stage stage) {
         this.stage = stage;
+        stage.setTitle("Blackjack client UPS 2019/2020");
         prepareLoginScene();
     }
 
@@ -347,7 +348,7 @@ public class Client {
      */
     public void restoreState(TCPData message) {
         var restoreState = message.valueOf(Fields.RESTORE_STATE);
-        System.out.println("restoring state");
+        System.out.println("This username was already on the server, restoring its state...");
         switch (restoreState) {
             case Values.LOBBY_LIST:
                 prepareLobbyListScene();
@@ -579,8 +580,23 @@ public class Client {
         alert.show();
     }
 
+    /**
+     * Zobrazi aktualniho hrace, ktery ma hrat
+     *
+     * @param message zprava s jmenem aktualniho hrace
+     */
     public void showCurrentPlayer(TCPData message) {
         var player = message.valueOf(Fields.USERNAME);
-        gameController.showMessage("Current Player: " + player + " has 60s to play");
+        gameController.showMessage(player + " now has 60s to play");
+    }
+
+    /**
+     * Zobrazi hrace, ktery byl preskocen kvuli neaktivite
+     *
+     * @param message zprava s jmenem preskoceneho hrace
+     */
+    public void showPlayerSkipped(TCPData message) {
+        var player = message.valueOf(Fields.USERNAME);
+        gameController.showMessage("Player " + player + " was skipped due to inactivity");
     }
 }
