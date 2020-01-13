@@ -78,7 +78,7 @@ public class PingService implements Runnable {
         while (!stop) {
 
             //Pokud nastal maximalni pocet pokusu pro reconnect, client se nebude dale pokouset pripojit
-            if (Duration.between(lastPingSent, LocalDateTime.now()).compareTo(DC_TIMEOUT) > 0) {
+            if (Duration.between(lastResponseReceived, LocalDateTime.now()).compareTo(DC_TIMEOUT) > 0) {
                 stop = true;
                 client.showConnectionLostDialog();
                 break;
