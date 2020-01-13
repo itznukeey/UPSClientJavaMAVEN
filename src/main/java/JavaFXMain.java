@@ -10,6 +10,7 @@ public class JavaFXMain extends Application {
 
     @Override
     public void start(Stage stage) {
+        //Novy konstruktor Client spusti cely program
         new Client(stage);
     }
 }

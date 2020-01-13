@@ -138,6 +138,7 @@ public class Client {
             return false;
         }
 
+        //Vlakna jsou nastavena jako deamony, aby se ukoncili po skonceni programu
         var thread = new Thread(messageReader);
         thread.setDaemon(true);
         thread.start();
@@ -212,7 +213,6 @@ public class Client {
             loginController.setClient(this);
             loginController.getLoginField().setText(username);
             loginController.getAddressField().setText(ip + ":" + port);
-            loginController.showConnectionClosed();
 
             stage.setScene(new Scene(loginRoot));
             stage.setResizable(false);
@@ -599,5 +599,12 @@ public class Client {
     public void showPlayerSkipped(TCPData message) {
         var player = message.valueOf(Fields.USERNAME);
         gameController.showMessage("Player " + player + " was skipped due to inactivity");
+    }
+
+    /**
+     * Ukaze, ze se spojeni bylo uzavreno
+     */
+    public void showConnectionClosed() {
+        loginController.showConnectionClosed();
     }
 }

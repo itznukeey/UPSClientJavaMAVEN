@@ -3,6 +3,7 @@ package client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
+
 import javafx.application.Platform;
 import serialization.Fields;
 import serialization.TCPData;
@@ -79,7 +80,7 @@ public class MessageReader implements Runnable {
      */
     private void parse(String messageString) {
         try {
-        var message = new TCPData(messageString);
+            var message = new TCPData(messageString);
             switch (message.getDataType()) {
                 case REQUEST:
                     processRequest(message);
@@ -96,7 +97,10 @@ public class MessageReader implements Runnable {
             }
         } catch (NullPointerException | IllegalStateException ex) {
             System.err.println("Received incorrect message");
-            Platform.runLater(client::disconnect);
+            Platform.runLater(() -> {
+                client.disconnect();
+                client.showConnectionClosed();
+            });
         }
     }
 
