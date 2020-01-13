@@ -29,41 +29,83 @@ public class GameController {
 
     private static final String DEALER = "dealer";
 
+    /**
+     * Grid pane s hraci
+     */
     @FXML
     private GridPane gridPane;
 
+    /**
+     * Log se stavem hry - odpojeni / pripojeni hracu
+     */
     @FXML
     private TextArea textArea;
 
+    /**
+     * Button pro HIT
+     */
     @FXML
     private Button hitButton;
 
+    /**
+     * Button pro STAND
+     */
     @FXML
     private Button standButton;
 
+    /**
+     * Button pro DOUBLE DOWN
+     */
     @FXML
     private Button doubleDownButton;
 
+    /**
+     * Button pro opusteni hry
+     */
     @FXML
     private Button leaveGameButton;
 
+    /**
+     * Boolean zda-li hrac muze hrat - pokud neobdrzi od serveru zpravu nemuze hrat
+     */
     @Setter
     private Boolean canPlay = false;
 
+    /**
+     * Zda-li byla scena jiz postavena - pote jenom aktualizuje data
+     */
     @Setter
     private Boolean sceneBuilt = false;
 
+    /**
+     * Reference na klienta
+     */
     @Setter
     private Client client;
 
+    /**
+     * Mapa s jednotlivymi panely hracu
+     */
     private Map<String, PlayerCellController> playerCellMap;
 
+    /**
+     * Pocet hracu
+     */
     private Integer playerCount;
 
+    /**
+     * Napise do logu text
+     * @param text text, ktery se ma napsat
+     */
     public void showMessage(String text) {
         textArea.appendText(text + "\n");
     }
 
+    /**
+     * Postavi scenu hry
+     * @param message zprava s daty hry
+     * @throws IOException exception, pokud by nesly najit fxml soubory
+     */
     public void buildScene(TCPData message) throws IOException {
         this.playerCellMap = new HashMap<>();
         this.playerCount = Integer.parseInt(message.valueOf(Fields.PLAYER_COUNT));
