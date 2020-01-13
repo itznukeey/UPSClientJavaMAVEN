@@ -28,7 +28,7 @@
                 <Font name="Roboto Medium" size="17.0"/>
             </font>
         </Text>
-        <Text fx:id="betToGained" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="player-details" text="Bet : Gain"
+        <Text fx:id="betToGain" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="player-details" text="Bet : Gain"
               textAlignment="CENTER">
             <font>
                 <Font name="Roboto Medium" size="17.0"/>

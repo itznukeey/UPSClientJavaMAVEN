@@ -1,13 +1,12 @@
 package client;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import javafx.application.Platform;
 import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.time.LocalDateTime;
 
 public class MessageReader implements Runnable {
 
@@ -48,7 +47,8 @@ public class MessageReader implements Runnable {
     }
 
     /**
-     * Run metoda, ktera bezi ve vlakne
+     * Run metoda, ktera bezi v externim vlakne, pro kontrolu zprav - potrebujeme extra vlakno jinak by UI zaviselo
+     * na cteni zprav.
      */
     @Override
     public void run() {
@@ -197,8 +197,7 @@ public class MessageReader implements Runnable {
                 break;
 
             case Values.LOBBY_LIST:
-                Platform.runLater(() ->
-                        client.parseLobbyList(message));
+                Platform.runLater(() -> client.parseLobbyList(message));
                 break;
 
             case Values.JOIN_LOBBY:

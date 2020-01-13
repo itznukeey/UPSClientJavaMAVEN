@@ -4,6 +4,11 @@ import client.Client;
 import client.game.data.Card;
 import client.game.data.Rank;
 import client.game.data.Suit;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,12 +20,6 @@ import lombok.Setter;
 import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Controller sceny pro hru - obsahuje kod tlacitek a zpracovani zprav z backendu
@@ -107,14 +106,17 @@ public class GameController {
      * @throws IOException exception, pokud by nesly najit fxml soubory
      */
     public void buildScene(TCPData message) throws IOException {
+        //Hrace pro snadny pristup ulozime do hashmapy podle jmena - je to unikatni identifikator
         this.playerCellMap = new HashMap<>();
         this.playerCount = Integer.parseInt(message.valueOf(Fields.PLAYER_COUNT));
 
+        //Pro kazdeho hrace vytvorime jeho panel a controller
         for (var playerNo = 0; playerNo < playerCount; playerNo++) {
             var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/player-cell.fxml"));
             Parent playerCell = fxmlLoader.load();
             var playerCellController = fxmlLoader.<PlayerCellController>getController();
 
+            //Nastavime potrebne udaje pro zobrazeni
             var username = message.valueOf(Fields.PLAYER + playerNo);
             var bet = message.valueOf(Fields.PLAYER + playerNo + Fields.BET);
 
@@ -135,13 +137,14 @@ public class GameController {
             gridPane.addColumn(playerNo, playerCell);
         }
 
+        //Stejny postup pouzijeme pro dealera
         var fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/player-cell.fxml"));
         Parent dealerCell = fxmlLoader.load();
         var dealerCellController = fxmlLoader.<PlayerCellController>getController();
         dealerCellController.setUsername(DEALER);
         var cards = getDealerCards(message);
         dealerCellController.setCardList(cards);
-        dealerCellController.getBetToGained().setText("");
+        dealerCellController.getBetToGain().setText("");
 
         gridPane.addColumn(playerCount, dealerCell);
         playerCellMap.put(DEALER, dealerCellController);
@@ -149,6 +152,9 @@ public class GameController {
         setButtonFunctions();
     }
 
+    /**
+     * Nastavi funkce vsech tlacitek
+     */
     private void setButtonFunctions() {
         hitButton.setOnAction(actionEvent -> {
             if (canPlay) {
@@ -174,6 +180,13 @@ public class GameController {
         });
     }
 
+    /**
+     * Zpracuje zpravu a najde vsechny karty daneho hrace
+     *
+     * @param message zprava od serveru s daty o hre
+     * @param i       index hrace
+     * @return seznam vsech karet daneho hrace
+     */
     private List<Card> getCards(TCPData message, int i) {
         var cardNo = 0;
         var cards = new ArrayList<Card>();
@@ -190,6 +203,12 @@ public class GameController {
         return cards;
     }
 
+    /**
+     * Najde a vrati karty dealera
+     *
+     * @param message zprava s daty o hre
+     * @return seznam s kartami dealera
+     */
     private List<Card> getDealerCards(TCPData message) {
         var cards = new ArrayList<Card>();
         var hiddenCard = message.valueOf(Fields.DEALER + Fields.CARD + 0);
@@ -210,7 +229,13 @@ public class GameController {
         return cards;
     }
 
+    /**
+     * Aktualizuje data - lze pouzit pouze pro "built" scenu - tzn. inicializovanou metodou {@code buildScene()}
+     *
+     * @param message
+     */
     public void updateData(TCPData message) {
+        //Aktualizace se od postaveni sceny lisi pouze tim ze ziska dane hrace a uz nevytvari panely hracu znovu
         for (var playerNo = 0; playerNo < playerCount; playerNo++) {
             var controller = playerCellMap.get(Fields.PLAYER + playerNo);
             var cards = getCards(message, playerNo);
@@ -228,6 +253,11 @@ public class GameController {
         dealerController.setCardList(cards);
     }
 
+    /**
+     * Zobrazi vysledky
+     *
+     * @param message zprava s vysledky hry
+     */
     public void showResults(TCPData message) {
         for (var playerNo = 0; playerNo < playerCount; playerNo++) {
             var controller = playerCellMap.get(Fields.PLAYER + playerNo);
@@ -248,6 +278,11 @@ public class GameController {
         dealerController.setTotalScore(hardLightHands[0] + " : " + hardLightHands[1]);
     }
 
+    /**
+     * Zobrazi vysledek tahu hrace
+     *
+     * @param message zprava s vysledkem tahu
+     */
     public void showTurn(TCPData message) {
         var player = message.valueOf(Fields.USERNAME);
         switch (message.valueOf(Fields.TURN_TYPE)) {
@@ -278,15 +313,30 @@ public class GameController {
         }
     }
 
+    /**
+     * Pro zjisteni, zda-li je scena postavena
+     *
+     * @return true, pokud scena byla postavena, jinak false
+     */
     public Boolean isSceneBuilt() {
         return sceneBuilt;
     }
 
+    /**
+     * Zobrazi znovu pripojeneho hrace
+     *
+     * @param message zprava s informacemi o hraci
+     */
     public void showPlayerReconnected(TCPData message) {
         var player = message.valueOf(Fields.USERNAME);
         showMessage("Player " + player + " has reconnected");
     }
 
+    /**
+     * Zobrazi zpravu ze se hrac odpojil ze hry
+     *
+     * @param message zprava s informacemi o hraci
+     */
     public void showPlayerDisconnected(TCPData message) {
         var player = message.valueOf(Fields.USERNAME);
         showMessage("Player " + player + " has disconnected");
