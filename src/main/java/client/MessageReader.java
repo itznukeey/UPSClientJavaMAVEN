@@ -151,6 +151,9 @@ public class MessageReader implements Runnable {
             case Values.UPDATE_BOARD:
                 Platform.runLater(() -> client.updateBoard(message));
                 break;
+            case Values.SHOW_CURRENT_PLAYER:
+                Platform.runLater(() -> client.showCurrentPlayer(message));
+                break;
 
             case Values.SHOW_RESULTS:
                 Platform.runLater(() -> client.showResults(message));

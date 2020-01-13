@@ -4,6 +4,15 @@ import controllers.GameController;
 import controllers.LobbiesController;
 import controllers.LobbyController;
 import controllers.LoginController;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -19,16 +28,6 @@ import serialization.Constants;
 import serialization.Fields;
 import serialization.TCPData;
 import serialization.Values;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Trida klienta, ktera obsahuje metody pro ovladani frontendu. Jakakoliv metoda ovlivnujici stage musi
@@ -578,5 +577,10 @@ public class Client {
         alert.setHeaderText("You didnt bet / confirm game");
         alert.setContentText("You were removed from lobby, you may try to reconnect if game hasnt started without you");
         alert.show();
+    }
+
+    public void showCurrentPlayer(TCPData message) {
+        var player = message.valueOf(Fields.USERNAME);
+        gameController.showMessage("Current Player: " + player + " has 60s to play");
     }
 }
