@@ -35,24 +35,46 @@ public class TCPData {
         deserialize(message);
     }
 
+    /**
+     * Konstruktor pro serializaci
+     *
+     * @param dataType typ zpravy
+     */
     public TCPData(DataType dataType) {
         this.fields = new HashMap<>();
         this.dataType = dataType;
     }
 
+    /**
+     * Vrati hodnotu daneho pole
+     *
+     * @param field nazev pole
+     * @return hodnotu daneho pole nebo null, pokud hodnota nebyla nalezena
+     */
     public String valueOf(String field) {
         return fields.get(field);
     }
 
+    /**
+     * Prida par pole hodnota do zpravy
+     *
+     * @param field nazev pole
+     * @param value nazev hodnoty
+     */
     public void add(String field, String value) {
         if (!isEditable) {
             throw new IllegalStateException("Error, data are marked as not editable");
         }
 
-        fields.put(field,value);
+        fields.put(field, value);
     }
 
-    public String serialize() throws IllegalStateException {
+    /**
+     * Serializuje zpravu
+     *
+     * @return vrati serializovany retezec
+     */
+    public String serialize() {
         var stringBuilder = new StringBuilder("{");
         fields.forEach((field, value) -> {
             stringBuilder.append(field).append(":").append(value).append(",");
@@ -62,6 +84,11 @@ public class TCPData {
         return stringBuilder.toString();
     }
 
+    /**
+     * Deserializuje zpravu
+     *
+     * @param message prijata zprava ze serveru
+     */
     private void deserialize(String message) {
         if (!message.startsWith("{") && !message.endsWith("}")) {
             throw new IllegalStateException("Error, incorrect message format");
@@ -81,7 +108,9 @@ public class TCPData {
             dataType = DataType.getType(fields.get("dataType"));
         }
 
-        catch (Exception ex) {
+        /**
+         * Pokud server poslal spatny format vyhodi chybu, ktera se zachyti ve vlakne a klient se odpoji
+         */ catch (Exception ex) {
             ex.printStackTrace();
             throw new IllegalStateException("Error, incorrect message format");
         }
